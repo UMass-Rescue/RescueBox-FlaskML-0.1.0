@@ -26,4 +26,4 @@ def transcribe(
     return file_ml.generate_text_response(results)
 
 
-server.run()
+server.run(port=5020)
