@@ -18,6 +18,7 @@ pipenv install
 ### Starting the server
 
 ```
+default port set to 5020
 python -m audio_transcription.backend.server
 ```
 
