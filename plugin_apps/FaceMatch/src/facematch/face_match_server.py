@@ -229,4 +229,4 @@ def bulk_upload_endpoint(
     return ResponseBody(root=TextResponse(value=response))
 
 
-server.run()
+server.run(port=5010)

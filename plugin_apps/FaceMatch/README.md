@@ -93,6 +93,17 @@ _Run below command from root directory of project._
 
 ### Start the server
 ```
+To prevent download of weights and matplotgraph created elsewhere and set environment variables:
+
+download weights files to .deepface/weights folder :
+https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5
+Download Yolo weights
+https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb
+
+
+set set MPLCONFIGDIR=.
+set DEEPFACE_HOME=.
+
 python -m src.facematch.face_match_server
 ```
 
