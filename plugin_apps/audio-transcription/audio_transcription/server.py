@@ -3,15 +3,20 @@ from flask_ml.flask_ml_server import MLServer, load_file_as_string
 
 from flask_ml.flask_ml_server.models import ResponseBody
 from flask_ml.flask_ml_server.templates import FileML
-
-from ..ml.model import AudioTranscriptionModel
+# remove relative import for pyinstaller
+from ml.model import AudioTranscriptionModel
 
 model = AudioTranscriptionModel()
 server = MLServer(__name__)
 
 # Add static location for app-info.md file
-script_dir = os.path.dirname(os.path.abspath(__file__))
-info_file_path = os.path.join(script_dir, "..", "app-info.md")
+# file path cannot be used for pyinstaller
+# script_dir = os.path.dirname(os.path.abspath(__file__))
+# if pyinstaller runs from parent directory
+#info_file_path = os.path.join("audio_transcription", "app-info.md")
+
+# run pyinstalled in same folder as server , app-info.md location
+info_file_path = os.path.join(".", "app-info.md")
 
 server.add_app_metadata(
     name="Audio Transcription",
@@ -30,7 +35,7 @@ file_ml = FileML(example_parameters)
 
 @server.route("/transcribe", task_schema_func=file_ml.task_schema_func)
 def transcribe(
-    inputs: file_ml.InputType, parameters: file_ml.ParameterType
+    inputs: file_ml.InputType, parameters: file_ml.ParameterType # type: ignore
 ) -> ResponseBody:
     print("Inputs:", inputs)
     print("Parameters:", parameters)
