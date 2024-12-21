@@ -1,4 +1,6 @@
-from flask_ml.flask_ml_server import MLServer
+import os
+from flask_ml.flask_ml_server import MLServer, load_file_as_string
+
 from flask_ml.flask_ml_server.models import ResponseBody
 from flask_ml.flask_ml_server.templates import FileML
 
@@ -6,6 +8,18 @@ from ..ml.model import AudioTranscriptionModel
 
 model = AudioTranscriptionModel()
 server = MLServer(__name__)
+
+# Add static location for app-info.md file
+script_dir = os.path.dirname(os.path.abspath(__file__))
+info_file_path = os.path.join(script_dir, "..", "app-info.md")
+
+server.add_app_metadata(
+    name="Audio Transcription",
+    author="RescueBox Team",
+    version="0.1.0",
+    info=load_file_as_string(info_file_path),
+)
+
 example_parameters = {
     "example_parameter": "example_value",
     "example_parameter2": 0.5,
