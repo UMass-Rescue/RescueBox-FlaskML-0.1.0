@@ -1,4 +1,4 @@
-import os
+import os, sys
 from flask_ml.flask_ml_server import MLServer, load_file_as_string
 
 from flask_ml.flask_ml_server.models import ResponseBody
@@ -6,14 +6,21 @@ from flask_ml.flask_ml_server.templates import FileML
 # remove relative import for pyinstaller
 from ml.model import AudioTranscriptionModel
 
+# for pyinstaller
+if getattr(sys, 'frozen', False):
+    os.environ["PATH"] += os.pathsep + sys._MEIPASS
+    os.chdir(sys._MEIPASS)
+
 model = AudioTranscriptionModel()
 server = MLServer(__name__)
 
-# Add static location for app-info.md file
-# file path cannot be used for pyinstaller
-# script_dir = os.path.dirname(os.path.abspath(__file__))
-# if pyinstaller runs from parent directory
-#info_file_path = os.path.join("audio_transcription", "app-info.md")
+'''
+ Add static location for app-info.md file
+ file path cannot be used for pyinstaller
+ script_dir = os.path.dirname(os.path.abspath(__file__))
+ if pyinstaller runs from parent directory
+ info_file_path = os.path.join("audio_transcription", "app-info.md")
+'''
 
 # run pyinstalled in same folder as server , app-info.md location
 info_file_path = os.path.join(".", "app-info.md")
