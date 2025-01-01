@@ -22,6 +22,8 @@ def return_pytorch04_xception(weight_path=None):
         # Load model in torch 0.4+
         model.fc = model.last_linear
         del model.last_linear
+        #TODO: EOFError: Ran out of input
+        # try catch and throw if weights file not found 
         state_dict = torch.load(weight_path)
         for name, weights in state_dict.items():
             if 'pointwise' in name:

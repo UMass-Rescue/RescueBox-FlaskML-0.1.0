@@ -15,6 +15,7 @@ class FaceMatchModel:
     def bulk_upload(self, image_directory_path, database_path=None):
         try:
             # Get database from config file.
+            log_info('in bulk_upload')
             if database_path is None:
                 config_path = get_config_path("db_config.json")
                 with open(config_path, "r") as config_file:
@@ -22,6 +23,8 @@ class FaceMatchModel:
                 database_path = get_resource_path(config["database_path"])
             else:
                 database_path = get_resource_path(database_path)
+            
+            log_info(database_path)
 
             # Get models from config file.
             config_path = get_config_path("model_config.json")
@@ -46,7 +49,7 @@ class FaceMatchModel:
                     ):
                         # Count the totalnumber of files read
                         total_files_read += 1
-
+                        log_info("debug detect_faces_and_get_embeddings")
                         # Get status and face_embeddings for the image
                         status, value = detect_faces_and_get_embeddings(
                             image_path,
@@ -54,6 +57,8 @@ class FaceMatchModel:
                             detector_backend,
                             face_confidence_threshold,
                         )
+                        log_info(image_path)
+                        log_info(status)
                         if status:
                             total_files_uploaded += 1
                             embedding_outputs.extend(value)
@@ -92,6 +97,9 @@ class FaceMatchModel:
                     + " files to "
                     + database_path
                 )
+            
+            if total_files_uploaded != total_files_read:
+                return f"An error occurred: {str(total_files_uploaded) + ' files uploaded'}"
 
             return (
                 "Successfully uploaded "

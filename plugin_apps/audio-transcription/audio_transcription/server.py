@@ -1,8 +1,12 @@
 import os, sys
+import argparse
+import signal
+from typing import TypedDict
 from flask_ml.flask_ml_server import MLServer, load_file_as_string
 
 from flask_ml.flask_ml_server.models import ResponseBody
 from flask_ml.flask_ml_server.templates import FileML
+from flask_ml.flask_ml_server.models import TextInput
 # remove relative import for pyinstaller
 from ml.model import AudioTranscriptionModel
 
@@ -39,6 +43,13 @@ example_parameters = {
 }
 file_ml = FileML(example_parameters)
 
+# Inputs and parameters for the findface endpoint
+class SInputs(TypedDict):
+    path: TextInput
+
+
+
+
 
 @server.route("/transcribe", task_schema_func=file_ml.task_schema_func)
 def transcribe(
@@ -51,5 +62,10 @@ def transcribe(
     results = {r["file_path"]: r["result"] for r in results}
     return file_ml.generate_text_response(results)
 
-
-server.run(port=5020)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run a server.")
+    parser.add_argument(
+        "--port", type=int, help="Port number to run the server", default=5020
+    )
+    args = parser.parse_args()
+    server.run(port=5020)

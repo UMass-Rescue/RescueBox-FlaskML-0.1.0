@@ -9,9 +9,10 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+import log from 'electron-log';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log/main';
+import console from 'console';
 import isDummyMode from 'src/shared/dummy_data/set_dummy_mode';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -22,6 +23,7 @@ import * as fileSystem from './handlers/file-system';
 import * as loggingHandler from './handlers/logging';
 import * as taskHandler from './handlers/task';
 import DatabaseConn, { getDbPath } from './database/database-conn';
+import RBServer from './rbserver';
 
 // It preloads electron-log IPC code in renderer processes
 log.initialize();
@@ -222,6 +224,11 @@ app
   .whenReady()
   .then(async () => {
     setupIpcMain();
+
+    const cwd = app.getPath('userData');
+    log.info('Run powershell script to install RBserver..');
+    await RBServer.installRBserver(cwd);
+
     const dbPath = getDbPath(app);
     log.info('Database location is', dbPath);
     if (isDummyMode) {

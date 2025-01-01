@@ -1,3 +1,4 @@
+import os,sys
 import argparse
 import csv
 import warnings
@@ -61,11 +62,16 @@ class Parameters(TypedDict):
     ckpt_path: str
     disable_facecrop: str
 
+script_dir = "."
+ckpt_file = "weights/dffd_M_unfrozen.ckpt"
+if getattr(sys, 'frozen', False):
+    script_dir = sys._MEIPASS
+    ckpt_file = os.path.join(script_dir, 'weights', 'dffd_M_unfrozen.ckpt')
 
 cfg = {
     "dataset_path": "datasets/demo",
     "resolution": 224,
-    "ckpt": "weights/dffd_M_unfrozen.ckpt",
+    "ckpt": ckpt_file,
 }
 
 server = MLServer(__name__)
@@ -149,7 +155,7 @@ def give_prediction(inputs: Inputs, parameters: Parameters) -> ResponseBody:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a server.")
     parser.add_argument(
-        "--port", type=int, help="Port number to run the server", default=5000
+        "--port", type=int, help="Port number to run the server", default=5005
     )
     args = parser.parse_args()
     print(

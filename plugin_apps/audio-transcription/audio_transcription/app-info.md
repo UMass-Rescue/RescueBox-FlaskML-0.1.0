@@ -25,6 +25,8 @@ python -m audio_transcription.backend.server
 ### Client example
 
 ```
+sample file : audio-transcription\audio\sample.mp3
+
 python client_example.py
 ```
 

@@ -1,0 +1,4 @@
+RescueBox-Desktop/assets/rb_server/
+RescueBox-Desktop/assets/rb_server/*
+build/*
+dist/*

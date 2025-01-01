@@ -4,18 +4,21 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pyinstaller="*"
 deepface = "*"
 black = "*"
 isort = "*"
 tf-keras = "*"
+jax = "*"
 ultralytics = "*"
 pandas = "*"
 scikit-learn = "*"
 flask-ml = "*"
-faiss-cpu = "*"
 ruff = "*"
+cx-freeze = "*"
+faiss-cpu = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
+python_version = "3.11"
