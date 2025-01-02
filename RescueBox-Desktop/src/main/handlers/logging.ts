@@ -6,6 +6,9 @@ export async function getLogs(_event: any, _arg: any) {
 }
 
 export async function clearLogs(_event: any, _arg: any) {
-  log.info('Clearing logs');
-  return log.transports.file.getFile().clear();
+  log.info('Clearing logs not implemented');
+  log.transports.file.getFile().clear();
+  log.create({ logId: 'main' });
+  return true;
+  // deletes log and new log does not create
 }

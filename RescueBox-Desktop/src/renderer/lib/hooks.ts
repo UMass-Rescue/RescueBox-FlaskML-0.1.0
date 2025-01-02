@@ -185,6 +185,22 @@ export function useJob(jobId?: string) {
   };
 }
 
+export function useDeploy() {
+  const fetcher = () => window.deploy.getDeploy();
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    `deploy:get-deploy`,
+    fetcher,
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
 export function useLogs() {
   const fetcher = () => window.logging.getLogs();
   const { data, error, isLoading, isValidating, mutate } = useSWR(

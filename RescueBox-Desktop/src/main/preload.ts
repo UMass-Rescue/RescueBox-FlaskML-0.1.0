@@ -134,6 +134,10 @@ const taskHandler = {
     ) as Promise<Task>,
 };
 
+const deployHandler = {
+  getDeploy: () => ipcRenderer.invoke('deploy:get-deploy') as Promise<number>,
+};
+
 const loggingHandler = {
   getLogs: () =>
     ipcRenderer.invoke('logging:get-logs') as Promise<
@@ -157,6 +161,7 @@ contextBridge.exposeInMainWorld('job', jobHandler);
 contextBridge.exposeInMainWorld('fileSystem', fileSystemHandler);
 contextBridge.exposeInMainWorld('database', databaseHandler);
 contextBridge.exposeInMainWorld('logging', loggingHandler);
+contextBridge.exposeInMainWorld('deploy', deployHandler);
 contextBridge.exposeInMainWorld('task', taskHandler);
 contextBridge.exposeInMainWorld('electronAPI', electronAPIHandler);
 
@@ -166,5 +171,6 @@ export type JobHandler = typeof jobHandler;
 export type FileSystemHandler = typeof fileSystemHandler;
 export type DatabaseHandler = typeof databaseHandler;
 export type LoggingHandler = typeof loggingHandler;
+export type DeployHandler = typeof deployHandler;
 export type TaskHandler = typeof taskHandler;
 export type ElectronAPIHandler = typeof electronAPIHandler;

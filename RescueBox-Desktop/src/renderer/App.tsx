@@ -25,6 +25,7 @@ import FallbackError from './components/FallbackError';
 import RegistrationIcon from './components/icons/RegistrationIcon';
 import LogsIcon from './components/icons/LogsIcon';
 import AuditLogs from './audit_logs/AuditLogs';
+import RBDeploy from './audit_logs/Deploy';
 import ModelRunTask from './models/ModelRunTask';
 import ModelAppConnect from './registration/ModelAppConnect';
 import { NavBarItem, ImageTitleNavBar } from './navigation/NavBarItem';
@@ -90,6 +91,7 @@ export default function App() {
             </Route>
           </Route>
           <Route path="/logs" element={<AuditLogs />} />
+          <Route path="/deploy" element={<RBDeploy />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/models" element={<Models />} />
           <Route path="/models/:modelUid/details" element={<ModelDetails />} />

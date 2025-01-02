@@ -21,16 +21,18 @@ import * as job from './handlers/job';
 import * as models from './handlers/models';
 import * as fileSystem from './handlers/file-system';
 import * as loggingHandler from './handlers/logging';
+import * as deployHandler from './handlers/deploy';
 import * as taskHandler from './handlers/task';
 import DatabaseConn, { getDbPath } from './database/database-conn';
 import RBServer from './rbserver';
 
 // It preloads electron-log IPC code in renderer processes
+const mlog = log.create({ logId: 'main' });
 log.initialize();
 
 class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
+    mlog.transports.file.level = 'info';
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
   }
@@ -96,6 +98,7 @@ function setupIpcMain() {
 
   // Logging: handles logging operations
   ipcMain.handle('logging:get-logs', loggingHandler.getLogs);
+  ipcMain.handle('deploy:get-deploy', deployHandler.getDeploy);
   ipcMain.handle('logging:clear-logs', loggingHandler.clearLogs);
 
   // Task: handles task service operations
@@ -219,6 +222,49 @@ app.on('window-all-closed', () => {
 if (process.env.NODE_ENV === 'development') {
   app.setAppUserModelId(process.execPath);
 }
+
+const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'assets')
+  : path.join(__dirname, '../../assets');
+
+const getAssetPath = (...paths: string[]): string => {
+  return path.join(RESOURCES_PATH, ...paths);
+};
+
+let rbWindow: BrowserWindow | null;
+const mainIndex = '../../index.html'; // the login window
+
+const iconPath = getAssetPath('icon.png'); // replace with your own logo
+const url = require('url');
+
+// eslint-disable-next-line func-names
+app.on('ready', function () {
+  rbWindow = new BrowserWindow({
+    // 1. create new Window
+    height: 600,
+    width: 450,
+    minHeight: 600,
+    minWidth: 450, // set the minimum height and width
+    // eslint-disable-next-line no-path-concat
+    icon: __dirname + iconPath,
+    frame: false, // I had my own style of title bar, so I don't want to show the default
+    backgroundColor: '#68b7ad', // I had to set back color to window in case the white screen show up
+    show: false, // to prevent the white screen when loading the window, lets not show it first
+  });
+
+  rbWindow.loadURL(
+    url.format({
+      // 2. Load HTML into Window
+      pathname: path.join(__dirname, mainIndex),
+      protocol: 'file',
+      slashes: true,
+    }),
+  );
+
+  rbWindow.on('closed', () => {
+    rbWindow = null;
+  });
+});
 
 app
   .whenReady()

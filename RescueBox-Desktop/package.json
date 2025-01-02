@@ -116,6 +116,7 @@
     "@radix-ui/react-navigation-menu": "^1.2.0",
     "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-slider": "^1.2.1",
+    "@radix-ui/react-progress": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@tanstack/react-table": "^8.20.5",
     "bindings": "^1.5.0",

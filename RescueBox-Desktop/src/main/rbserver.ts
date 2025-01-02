@@ -3,15 +3,17 @@ import { info, error } from 'electron-log/main';
 import path from 'path';
 
 export default class RBServer {
-  private path;
+  public static appath: string;
 
   constructor(scpath: string) {
-    this.path = scpath;
+    RBServer.appath = scpath;
   }
 
   // Install PowerShell script to install RB server
   static async installRBserver(appPath: string): Promise<void> {
     try {
+      info('Begin RescueBox Server Install..');
+      RBServer.appath = appPath;
       // const { spawn } = require('child_process');
       info(`Powershell cwd ${appPath}`);
       const pathf = path.join(
@@ -48,6 +50,7 @@ export default class RBServer {
 
       child.on('close', (code: any) => {
         info(`child process exited with code ${code}`);
+        info('RescueBox Installed Ok..Proceed to register models');
       });
     } catch (err: any) {
       info(err);
