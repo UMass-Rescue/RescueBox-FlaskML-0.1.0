@@ -31,7 +31,15 @@ Section "Uninstall"
   SendMessage $0 ${WM_CLOSE} 0 0
   ExpandEnvStrings $0 %COMSPEC%
   ExecWait '"$0" /C "$INSTDIR_DAT\assets\rb_server\rb.bat"'
-  ExecWait '"$0" /K cd $LocalAppdata && rmdir /s /q $LocalAppdata\Programs\RescueBox-Desktop"'
+  ExecWait '"$0" /K cd $LocalAppdata && rmdir /s /q $LocalAppdata\Programs\RescueBox-Desktop\resources"'
+
+  ExecWait '"$0" /K cd $LocalAppdata && rmdir /s /q $LocalAppdata\Programs\RescueBox-Desktop\locales"'
+  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.dll"'
+  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.pak"'
+  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
+  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.json"'
+  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
+
   ExecWait '"$0" /K cd $LocalAppdata && del /q /f $AppData\RescueBox-Desktop\logs\*.*"'
 SectionEnd
 

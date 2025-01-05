@@ -33,7 +33,20 @@ function Deploy() {
   };
 
   if (currentStep === tSteps) {
-    return <div>Deploy successful</div>;
+    return (
+      // eslint-disable-next-line react/style-prop-object
+      <div
+        className="bold"
+        style={{ color: 'green', backgroundColor: 'white' }}
+      >
+        <h3>
+          Model Servers installed and Started <strong>OK</strong> !
+          <span>
+            <p>Proceed to Register Models</p>
+          </span>
+        </h3>
+      </div>
+    );
   }
   return (
     <div>
