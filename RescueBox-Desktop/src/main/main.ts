@@ -14,6 +14,10 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import console from 'console';
 import isDummyMode from 'src/shared/dummy_data/set_dummy_mode';
+// import ReactDOM from 'react-dom';
+// import { useEffect } from 'react';
+import fs from 'fs';
+// import Deploy from 'src/renderer/audit_logs/Deploy';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import * as registration from './handlers/registration';
@@ -139,6 +143,67 @@ const installExtensions = async () => {
 /**
  * Window Management ...
  */
+// eslint-disable-next-line func-names, @typescript-eslint/no-unused-vars
+const createDeployWindow = async (top: BrowserWindow) => {
+  try {
+    const RESOURCES_PATH = app.isPackaged
+      ? path.join(process.resourcesPath, 'assets')
+      : path.join(__dirname, '../../assets');
+
+    const getAssetPath = (...paths: string[]): string => {
+      return path.join(RESOURCES_PATH, ...paths);
+    };
+
+    let rbWindow: BrowserWindow | null;
+    const mainIndex = resolveHtmlPath('rb.html'); // the login window
+    const iconPath = getAssetPath('icon.png'); // replace with your own logo
+    rbWindow = new BrowserWindow({
+      // 1. create new Window
+      height: 300,
+      width: 300,
+      // eslint-disable-next-line no-path-concat
+      icon: __dirname + iconPath,
+      frame: false, // I had my own style of title bar, so I don't want to show the default
+      backgroundColor: '#68b7ad', // I had to set back color to window in case the white screen show up
+      // backgroundColor: '#420024',
+      parent: top,
+      modal: true,
+      show: false, // to prevent the white screen when loading the window, lets not show it first
+      webPreferences: {
+        // preload: path.join(__dirname, 'preload.js'),
+        nodeIntegration: true, // Enable Node.js in the renderer process (if needed)
+        contextIsolation: false, // Disable context isolation (if needed)
+      },
+    });
+
+    rbWindow.loadFile(mainIndex);
+
+    rbWindow.webContents.once('dom-ready', () => {
+      console.log('child window log here ....');
+
+      rbWindow?.webContents.executeJavaScript(`
+        log.info('JavaScript executed from Electron main process!');
+        const { render } = require('react-dom');
+        const React = require('react');
+        const DeployComponent = require('src/renderer/audit_logs/Deploy').default;
+        render(React.createElement(DeployComponent), document.getElementById('root'));
+      `);
+    });
+
+    rbWindow.once('ready-to-show', () => {
+      // rbWindow?.setAlwaysOnTop(true);
+      top.show();
+      rbWindow?.show();
+      rbWindow?.webContents.send('message-from-main', 'Hello from Deploy!');
+    });
+
+    rbWindow.on('closed', () => {
+      rbWindow = null;
+    });
+  } catch (error) {
+    log.info(error);
+  }
+};
 
 const createWindow = async () => {
   if (isDebug) {
@@ -176,6 +241,8 @@ const createWindow = async () => {
     },
   });
 
+  // createDeployWindow(mainWindow);
+
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
@@ -185,6 +252,7 @@ const createWindow = async () => {
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
+      // mainWindow?.webContents.send('message-from-main', 'Hello from Main!');
       mainWindow.show();
     }
   });
@@ -223,74 +291,45 @@ if (process.env.NODE_ENV === 'development') {
   app.setAppUserModelId(process.execPath);
 }
 
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'assets')
-  : path.join(__dirname, '../../assets');
-
-const getAssetPath = (...paths: string[]): string => {
-  return path.join(RESOURCES_PATH, ...paths);
-};
-
-let rbWindow: BrowserWindow | null;
-const mainIndex = '../../index.html'; // the login window
-
-const iconPath = getAssetPath('icon.png'); // replace with your own logo
-const url = require('url');
-
-// eslint-disable-next-line func-names
-app.on('ready', function () {
-  rbWindow = new BrowserWindow({
-    // 1. create new Window
-    height: 600,
-    width: 450,
-    minHeight: 600,
-    minWidth: 450, // set the minimum height and width
-    // eslint-disable-next-line no-path-concat
-    icon: __dirname + iconPath,
-    frame: false, // I had my own style of title bar, so I don't want to show the default
-    backgroundColor: '#68b7ad', // I had to set back color to window in case the white screen show up
-    show: false, // to prevent the white screen when loading the window, lets not show it first
-  });
-
-  rbWindow.loadURL(
-    url.format({
-      // 2. Load HTML into Window
-      pathname: path.join(__dirname, mainIndex),
-      protocol: 'file',
-      slashes: true,
-    }),
-  );
-
-  rbWindow.on('closed', () => {
-    rbWindow = null;
-  });
-});
-
 app
   .whenReady()
   .then(async () => {
-    setupIpcMain();
-
-    const cwd = app.getPath('userData');
-    log.info('Run powershell script to install RBserver..');
-    await RBServer.installRBserver(cwd);
-
-    const dbPath = getDbPath(app);
-    log.info('Database location is', dbPath);
-    if (isDummyMode) {
-      log.info('Initializing dummy data');
-      await DatabaseConn.initDatabaseTest(dbPath);
-    } else {
-      log.info('Initializing database');
-      await DatabaseConn.initDatabase(dbPath);
-      // await DatabaseConn.resetDatabase(dbPath); // For testing purposes only
+    try {
+      setupIpcMain();
+      const cwd = app.getPath('userData');
+      RBServer.appath = cwd;
+      log.info('RBServer appath is', cwd);
+      const rbServerLog = path.join(
+        process.resourcesPath,
+        'assets',
+        'rb_server',
+        'rb_py.log',
+      );
+      if (fs.existsSync(rbServerLog)) {
+        log.info(`Skip RescueBox Server Install. ${rbServerLog} exists`);
+      } else {
+        log.info('Run powershell script to install RBserver..');
+        await RBServer.installRBserver(cwd);
+      }
+      const dbPath = getDbPath(app);
+      log.info('Database location is', dbPath);
+      if (isDummyMode) {
+        log.info('Initializing dummy data');
+        await DatabaseConn.initDatabaseTest(dbPath);
+      } else {
+        log.info('Initializing database');
+        await DatabaseConn.initDatabase(dbPath);
+        // await DatabaseConn.resetDatabase(dbPath); // For testing purposes only
+      }
+      createWindow();
+      app.on('activate', () => {
+        // On macOS it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        console.log('Activating app');
+        if (mainWindow === null) createWindow();
+      });
+    } catch (error) {
+      console.log(error);
     }
-    createWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      console.log('Activating app');
-      if (mainWindow === null) createWindow();
-    });
   })
   .catch(console.log);

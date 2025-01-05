@@ -7,6 +7,13 @@ copy python-3.11.2-amd64.exe to RescueBox-FlaskML-0.1.0\RescueBox-Desktop\assets
 
 these "assets" get shipped by electron builder EXE and installed , see below last few lines about it
 
+nsis 2GB limit
+
+overwrite C:\Users\foth2\AppData\Local\electron-builder\Cache\nsis with the unzip of nsis-binary-7423-2.zip
+all the sub folders like bin with get updated
+no npm build will work ok
+
+
 process : 
 Desktop main.ts calls rbserver.ts method , this calls powershell installer.ps1 
 
@@ -34,5 +41,4 @@ this is where plugin code is installed and executed
             C:\Users\<name>\AppData\Local\Programs\RescueBox-Desktop\resources\assets\rb_server\plugin_apps
 
 desktop server icon --to stop and start for day 2 operations
-
 

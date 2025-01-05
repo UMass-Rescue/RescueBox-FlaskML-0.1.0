@@ -26,7 +26,24 @@ export function DyProgressBar({
     setProgress(calculatedProgress);
   }, [currentStep, totalSteps]);
 
-  return <Progress value={progress} />;
+  if (currentStep === totalSteps) {
+    return (
+      <Progress
+        value={progress}
+        className="[&>*]:bg-green-600"
+        max={100}
+        indicatorColor="bg-green-300"
+      />
+    );
+  }
+  return (
+    <Progress
+      value={progress}
+      className="[&>*]:bg-red-600"
+      max={100}
+      indicatorColor="bg-black-300"
+    />
+  );
 }
 
 interface DynamicProgressBarProps {
@@ -45,55 +62,13 @@ export function DynamicProgressBar({
     setValue(percentage);
   }, [progress, total]);
 
-  return <Progress value={value} className="w-full" />;
-}
-
-export function SimpleProgressBar() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress === 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prevProgress + 10;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div>
-      <Progress value={progress} />
-    </div>
-  );
-}
-
-export function ProgressBar() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    // Simulate progress update
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prevProgress + 10;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div>
-      <Progress value={progress} />
-    </div>
+    <Progress
+      value={value}
+      className="[&>*]:bg-red-600"
+      max={100}
+      indicatorColor="bg-blue-300"
+    />
   );
 }
 
