@@ -21,17 +21,21 @@ const getDeploy = async (_event: any, arg: any) => {
     if (fs.existsSync(pids)) {
       const lineArray = fs.readFileSync(pids).toString().split('\n');
       log.info(`pids data ${lineArray.length}`);
-      if (lineArray.length === 3) {
-        log.info('pids found');
+      if (lineArray.length === 5) {
+        log.info('2 pids found');
         showNotification(
           'In Progress',
           `Click Logs to view details.`,
-          `progress 1`,
+          `progress 5`,
         );
         return 5;
       }
       if (lineArray.length === 2) {
-        log.info('pids found');
+        log.info('pids found 2');
+        return 2;
+      }
+      if (lineArray.length === 2) {
+        log.info('pids found 1');
         return 1;
       }
     }

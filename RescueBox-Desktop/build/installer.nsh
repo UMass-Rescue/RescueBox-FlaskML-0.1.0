@@ -30,9 +30,9 @@ Section "Uninstall"
   Var /GLOBAL PY_PATH
   Strcpy "$PY_PATH" "$PROFILE\python311\python.exe"
   ExpandEnvStrings $0 %COMSPEC%
-  ExecWait '"$0" /C "$PY_PATH $INSTDIR_DAT\assets\rb_server\rb.py"'
+  Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\assets\rb_server\rb.py"'
 
-  ExecWait '"$0" /K del /q /f "$AppData\RescueBox-Desktop\logs\*.*"'
+  Exec '"$0" /K del /q /f "$AppData\RescueBox-Desktop\logs\*.*"'
 
   FindWindow $0 "RescueBox-Desktop"
   SendMessage $0 ${WM_CLOSE} 0 0
@@ -43,7 +43,7 @@ Section "Uninstall"
   Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
   Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
 
-  ;ExecWait '"$0" /K cd $LocalAppdata && del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
+  ;Exec '"$0" /K cd $LocalAppdata && del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
   Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop"'
 
 

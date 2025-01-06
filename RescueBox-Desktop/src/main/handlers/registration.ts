@@ -84,12 +84,13 @@ const getModelAppStatus = async (
   const healthBool = await modelAppService.pingHealth();
   server.isUserConnected = healthBool;
   await server.save();
-  log.info(`App status offline= ${ModelAppStatus.Offline}`);
-  if (ModelAppStatus.Offline) {
+  log.info(`App status is online ? ${healthBool}`);
+  if (!healthBool) {
     // restart service
     const port = modelAppService.getAppServerPort();
-    log.info(`App status offline on port ${port}`);
-    const rc = restartServer(port.toString());
+    const res = await port.then((result) => result.toString());
+    log.info(`App status offline on port ${res}`);
+    const rc = restartServer(res);
     log.info(`App restart rc for port ${port} ${rc}`);
   }
   return healthBool ? ModelAppStatus.Online : ModelAppStatus.Offline;
