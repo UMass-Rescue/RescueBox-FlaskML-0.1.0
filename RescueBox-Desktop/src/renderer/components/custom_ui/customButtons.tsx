@@ -9,6 +9,7 @@ import {
 } from '@shadcn/tooltip';
 import { Link } from 'react-router-dom';
 import { Job, MLModel } from 'src/shared/models';
+import LinearProgressWithLabelValue from '../ui/progressWithValue';
 import CancelIcon from '../icons/CancelIcon';
 import DeleteIcon from '../icons/DeleteIcon';
 
@@ -26,6 +27,8 @@ export function DyProgressBar({
     setProgress(calculatedProgress);
   }, [currentStep, totalSteps]);
 
+  return <LinearProgressWithLabelValue value={progress} />;
+  /*
   if (currentStep === totalSteps) {
     return (
       <Progress
@@ -44,6 +47,7 @@ export function DyProgressBar({
       indicatorColor="bg-black-300"
     />
   );
+  */
 }
 
 interface DynamicProgressBarProps {

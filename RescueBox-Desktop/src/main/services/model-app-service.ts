@@ -50,6 +50,10 @@ class ModelAppService {
     return new ModelAppService(modelDb, modelServer);
   }
 
+  public async getAppServerPort(): Promise<number> {
+    return this.modelServer.serverPort;
+  }
+
   public async getApiRoutes(): Promise<SchemaAPIRoute[]> {
     return this.apiRoutes;
   }

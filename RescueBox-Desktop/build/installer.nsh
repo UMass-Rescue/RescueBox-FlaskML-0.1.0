@@ -9,7 +9,6 @@ SetDetailsPrint both
 InitPluginsDir
 StrCpy $VersionNumber "v1.0"
 MessageBox MB_OK "RescueBox $VersionNumber $INSTDIR"
-;MessageBox MB_OK "RescueBox LocalAppdata $LocalAppdata"
 MessageBox MB_OK|MB_ICONINFORMATION "Copyright (R) ${COPYYEAR}"
 SectionEnd
 
@@ -27,20 +26,27 @@ SectionEnd
 Section "Uninstall"
   Var /GLOBAL INSTDIR_DAT
   Strcpy "$INSTDIR_DAT" "$LocalAppdata\Programs\RescueBox-Desktop\resources"
+
+  Var /GLOBAL PY_PATH
+  Strcpy "$PY_PATH" "$PROFILE\python311\python.exe"
+  ExpandEnvStrings $0 %COMSPEC%
+  ExecWait '"$0" /C "$PY_PATH $INSTDIR_DAT\assets\rb_server\rb.py"'
+
+  ExecWait '"$0" /K del /q /f "$AppData\RescueBox-Desktop\logs\*.*"'
+
   FindWindow $0 "RescueBox-Desktop"
   SendMessage $0 ${WM_CLOSE} 0 0
   ExpandEnvStrings $0 %COMSPEC%
-  ExecWait '"$0" /C "$INSTDIR_DAT\assets\rb_server\rb.bat"'
-  ExecWait '"$0" /K cd $LocalAppdata && rmdir /s /q $LocalAppdata\Programs\RescueBox-Desktop\resources"'
+  Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop\locales"'
+  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.dll"'
+  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.pak"'
+  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
+  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
 
-  ExecWait '"$0" /K cd $LocalAppdata && rmdir /s /q $LocalAppdata\Programs\RescueBox-Desktop\locales"'
-  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.dll"'
-  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.pak"'
-  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
-  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\*.json"'
-  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
+  ;ExecWait '"$0" /K cd $LocalAppdata && del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
+  Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop"'
 
-  ExecWait '"$0" /K cd $LocalAppdata && del /q /f $AppData\RescueBox-Desktop\logs\*.*"'
+
 SectionEnd
 
 !macro customRemoveFiles
@@ -50,7 +56,7 @@ SectionEnd
   ;ExpandEnvStrings $0 %COMSPEC%
   ;ExecWait '"$0" /C "$INSTDIR_DX\assets\rb_server\rb.bat"'
   Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
-  ExecWait "del /f /q $INSTDIR_LOG\*.*"
+  Exec "del /f /q $INSTDIR_LOG\*.*"
   ;ExecWait "rmdir /s /q $INSTDIR_DX"
 !macroend
 

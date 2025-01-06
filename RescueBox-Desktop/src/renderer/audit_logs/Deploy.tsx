@@ -10,6 +10,8 @@ import {
 import GreenRunIcon from '../components/icons/GreenRunIcon';
 import LoadingScreen from '../components/LoadingScreen';
 
+let COMPLETE = 0;
+
 function Deploy() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentStep, setCurrentStep] = useState(1);
@@ -25,6 +27,7 @@ function Deploy() {
   if (error) return <div>Error: {error.message}</div>;
   if (!progress) return <LoadingScreen />;
   if (progress <= 0) return <div>Deploy failed</div>;
+  if (COMPLETE === 100) return <div>Model Server Started OK</div>;
 
   const handleRefresh = async (): Promise<void> => {
     // await window.logging.clearLogs();
@@ -33,6 +36,7 @@ function Deploy() {
   };
 
   if (currentStep === tSteps) {
+    COMPLETE = 100;
     return (
       // eslint-disable-next-line react/style-prop-object
       <div
