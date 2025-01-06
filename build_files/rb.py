@@ -11,7 +11,7 @@ logging.basicConfig(filename='rb_starter.log', level=logging.INFO, format='%(asc
 logging.info('This is rb start/stop utility ')
 parser = argparse.ArgumentParser(description="Run a server.")
 parser.add_argument(
-        "--port", type=int, help="Port number to run the server", default=5000
+        "--port", type=str, help="Port number to run the server", default="5000"
     )
 args = parser.parse_args()
 port=args.port
@@ -36,19 +36,24 @@ procfile = os.path.join( RBHOME, 'rb_process.txt')
 DONE=False
 with open(procfile, 'r') as file:
     id= file.read().split("\n")
-    x = id.split("=")
-    print(f"found process {x[0]} port {x[1]}")
-    logging.info(f"found process {x[0]} port {x[1]}")
-    for proc in psutil.process_iter(['pid', 'name']):
-        pid = proc.info['pid']
-        if str(pid) in id:
-            print(f'found {str(proc.info["name"])}')
-            logging.info(f'found ' + str(proc.info['name']))
-            results = taskkill_force_pid_children(pids=(pid))
-            print(results)
-            print("RB model Server stopped ok")
-            print(f'RB model Server stopped ok')
-            DONE=True
+    logging.info(f"got procs list {id}")
+    for line in id:
+        x = line.split("=")
+        if len(x) != 2:
+            continue
+        print(f"found process {x}")
+        #print(f"found process {x[0]} port {x[1]}")
+        logging.info(f"found process {x[0]} port {x[1]}")
+        for proc in psutil.process_iter(['pid', 'name']):
+            pid = proc.info['pid']
+            if str(pid) in x:
+                print(f'found {str(proc.info["name"])}')
+                logging.info(f'found ' + str(proc.info['name']))
+                results = taskkill_force_pid_children(pids=(pid))
+                logging.info(f'kill output= {results}')
+                print("RB model Server stopped ok")
+                logging.info(f'RB model Server stopped ok')
+                DONE=True
 
 
 if DONE:
@@ -63,16 +68,16 @@ if DONE:
                                creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP,
                                stdout=None, stderr=None
                                )
-    pid = process.pid
-    print("Process audio PID:", pid)
-    logging.info(f'Process audio PID {pid}')
+    new_pid = process.pid
+    print("Process audio PID:", new_pid)
+    logging.info(f'Process audio PID {new_pid}')
     with open(procfile, 'r') as file:
         lines = file.readlines()
         logging.info(f'existing lines in process.txt {lines}')
     out_lines = []
     for line in lines:
-        if port in line:
-            line = port + "=" + pid
+        if need_model in line:
+            line = need_model + "=" + str(new_pid)
             logging.info(f'new pid for process.txt {line}')
         out_lines.append(line)
     logging.info(f'new lines for process.txt {out_lines}')
@@ -83,7 +88,7 @@ if DONE:
      # replace pid in process.txt
      # done
 
-
+'''
 while True:
     data = input("RB Server stopped ok, type Exit:\n")
     #if os.path.exists(procfile):
@@ -93,7 +98,7 @@ while True:
 
 print("Done")
 
-'''
+
           results = taskkill_regex_rearch(
                       dryrun=False,
                       kill_children=True,

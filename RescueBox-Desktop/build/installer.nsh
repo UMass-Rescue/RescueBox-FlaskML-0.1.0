@@ -43,7 +43,7 @@ Section "Uninstall"
   Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
   Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
 
-  ;Exec '"$0" /K cd $LocalAppdata && del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
+  ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
   Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop"'
 
 

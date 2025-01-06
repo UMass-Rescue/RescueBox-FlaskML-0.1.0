@@ -50,7 +50,7 @@ async function restartServer(port: string): Promise<boolean> {
     pythonPath: process.env.PY,
     pythonOptions: [], // get print results in real-time
     scriptPath: process.env.RBPY,
-    args: [`--port ${port}`],
+    args: ['--port', `${port}`],
   };
 
   try {
@@ -91,7 +91,8 @@ const getModelAppStatus = async (
     const res = await port.then((result) => result.toString());
     log.info(`App status offline on port ${res}`);
     const rc = restartServer(res);
-    log.info(`App restart rc for port ${port} ${rc}`);
+    const rce = await port.then((result) => result.toString());
+    log.info(`App restart rc for port ${res} ${rce}`);
   }
   return healthBool ? ModelAppStatus.Online : ModelAppStatus.Offline;
 };
