@@ -32,10 +32,9 @@ Section "Uninstall"
   ExpandEnvStrings $0 %COMSPEC%
   Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\assets\rb_server\rb.py"'
 
-  Exec '"$0" /K del /q /f "$AppData\RescueBox-Desktop\logs\*.*"'
-
   FindWindow $0 "RescueBox-Desktop"
   SendMessage $0 ${WM_CLOSE} 0 0
+
   ExpandEnvStrings $0 %COMSPEC%
   Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop\locales"'
   Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.dll"'
@@ -43,20 +42,14 @@ Section "Uninstall"
   Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
   Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
 
-  ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\RescueBox-Desktop.exe"'
   Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop"'
 
 
 SectionEnd
 
 !macro customRemoveFiles
-  Var /GLOBAL INSTDIR_DX
   Var /GLOBAL INSTDIR_LOG
-  Strcpy "$INSTDIR_DX" "$LocalAppdata\Programs\RescueBox-Desktop\resources"
-  ;ExpandEnvStrings $0 %COMSPEC%
-  ;ExecWait '"$0" /C "$INSTDIR_DX\assets\rb_server\rb.bat"'
   Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
-  Exec "del /f /q $INSTDIR_LOG\*.*"
-  ;ExecWait "rmdir /s /q $INSTDIR_DX"
+  Exec "del /f /q $INSTDIR_LOG\main.log"
 !macroend
 

@@ -5,13 +5,14 @@ import argparse
 import logging
 import subprocess
 
-
-logging.basicConfig(filename='rb_starter.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+RBLOG= os.path.join(os.environ['APPDATA'], 'RescueBox-Desktop', 'logs')
+RBLOG_FILE = os.path.join(RBLOG, 'rb_starter.log')
+logging.basicConfig(filename=RBLOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 logging.info('This is rb start/stop utility ')
 parser = argparse.ArgumentParser(description="Run a server.")
 parser.add_argument(
-        "--port", type=str, help="Port number to run the server", default="5000"
+        "--port", type=str, help="Port number to run the server", default="0"
     )
 args = parser.parse_args()
 port=args.port
@@ -57,6 +58,9 @@ with open(procfile, 'r') as file:
 
 
 if DONE:
+    os.remove(procfile)
+    logging.info(f'RB model Server removed rb_process.txt')
+if DONE and need_model is not None:
      # restart model and replace new pid
      # get cmdline to run process from pshell
     pdir = os.path.join(RBHOME, "plugin_apps","audio-transcription","audio_transcription")

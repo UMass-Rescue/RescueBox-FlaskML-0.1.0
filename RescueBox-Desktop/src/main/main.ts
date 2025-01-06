@@ -16,7 +16,6 @@ import console from 'console';
 import isDummyMode from 'src/shared/dummy_data/set_dummy_mode';
 // import ReactDOM from 'react-dom';
 // import { useEffect } from 'react';
-import fs from 'fs';
 // import Deploy from 'src/renderer/audit_logs/Deploy';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -296,21 +295,6 @@ app
   .then(async () => {
     try {
       setupIpcMain();
-      const cwd = app.getPath('userData');
-      RBServer.appath = cwd;
-      log.info('RBServer appath is', cwd);
-      const rbServerLog = path.join(
-        process.resourcesPath,
-        'assets',
-        'rb_server',
-        'rb_py.log',
-      );
-      if (fs.existsSync(rbServerLog)) {
-        log.info(`Skip RescueBox Server Install. ${rbServerLog} exists`);
-      } else {
-        log.info('Run powershell script to install RBserver..');
-        await RBServer.installRBserver(cwd);
-      }
       const dbPath = getDbPath(app);
       log.info('Database location is', dbPath);
       if (isDummyMode) {
@@ -321,6 +305,12 @@ app
         await DatabaseConn.initDatabase(dbPath);
         // await DatabaseConn.resetDatabase(dbPath); // For testing purposes only
       }
+
+      const cwd = app.getPath('userData');
+      RBServer.appath = cwd;
+      log.info('Run powershell script to install Model Servers..');
+      await RBServer.installRBserver(cwd);
+
       createWindow();
       app.on('activate', () => {
         // On macOS it's common to re-create a window in the app when the

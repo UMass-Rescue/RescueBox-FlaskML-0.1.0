@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { info, error } from 'electron-log/main';
 import path from 'path';
+import fs from 'fs';
 
 export default class RBServer {
   public static appath: string;
@@ -12,9 +13,19 @@ export default class RBServer {
   // Install PowerShell script to install RB server
   static async installRBserver(appPath: string): Promise<void> {
     try {
-      info('Begin RescueBox Server Install..');
       RBServer.appath = appPath;
-      // const { spawn } = require('child_process');
+      const rbServerProcessInfo = path.join(
+        process.resourcesPath,
+        'assets',
+        'rb_server',
+        'rb_process.txt',
+      );
+      if (fs.existsSync(rbServerProcessInfo)) {
+        info(
+          `Skip RescueBox Server Install. ${rbServerProcessInfo} are running perhaps`,
+        );
+        return;
+      }
       info(`Powershell cwd ${appPath}`);
       const pathf = path.join(
         process.resourcesPath,
@@ -49,8 +60,7 @@ export default class RBServer {
       });
 
       child.on('close', (code: any) => {
-        info(`child process exited with code ${code}`);
-        info('RescueBox Installed Ok..Proceed to register models');
+        info(`RescueBox Installed Ok, exit=${code}.Proceed to register models`);
       });
     } catch (err: any) {
       info(err);
