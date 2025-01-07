@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+deepface = "*"
+black = "*"
+isort = "*"
+tf-keras = "*"
+ultralytics = "*"
+pandas = "*"
+scikit-learn = "*"
+flask-ml = "*"
+faiss-cpu = "*"
+ruff = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

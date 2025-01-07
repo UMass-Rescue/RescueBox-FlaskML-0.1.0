@@ -1,0 +1,19 @@
+# Ignore Python bytecode
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore __pycache__ directories
+__pycache__/
+
+# Ignore virtual environment folders
+venv/
+.env/
+.idea/
+
+# Ignore data folders
+resources/data/
+resources/test_images/
+run_server.sh
+run_server2.sh
+
