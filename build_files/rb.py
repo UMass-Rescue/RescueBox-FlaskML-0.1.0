@@ -60,7 +60,7 @@ with open(procfile, 'r') as file:
 if DONE:
     os.remove(procfile)
     logging.info(f'RB model Server removed rb_process.txt')
-if DONE and need_model is not None:
+if DONE and model.get(port) is not None:
      # restart model and replace new pid
      # get cmdline to run process from pshell
     pdir = os.path.join(RBHOME, "plugin_apps","audio-transcription","audio_transcription")

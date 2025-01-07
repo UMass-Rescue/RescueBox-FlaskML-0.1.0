@@ -91,7 +91,7 @@ if (!$SKIP_INSTALL) {
       Write-Output "Installing Python.."
       # Read-Host "[Press enter to continue]"
 
-      Start-Process -FilePath .\python-3.11.2-amd64.exe -ArgumentList "/repair /quiet InstallAllUsers=0 PrependPath=1 Include_tools=1 Include_lib=1 Include_pip=1 Include_test=0 TargetDir=$env:USERPROFILE\python311 /log $RBLOG\rb-python311-Install.log" -Wait
+      Start-Process -FilePath .\python-3.11.2-amd64.exe -ArgumentList "/repair /quiet InstallAllUsers=0 PrependPath=0 Include_tools=1 Include_lib=1 Include_pip=1 Include_test=0 TargetDir=$env:USERPROFILE\python311 /log $RBLOG\rb-python311-Install.log" -Wait
 
       #.\python-3.12.6-amd64.exe /quiet InstallAllUsers=0 PrependPath=1 Include_test=0"
     }else{
