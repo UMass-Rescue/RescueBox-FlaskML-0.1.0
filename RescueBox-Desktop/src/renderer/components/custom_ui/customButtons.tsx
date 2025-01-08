@@ -1,6 +1,5 @@
 import { Button } from '@shadcn/button';
 import { useEffect, useState } from 'react';
-import { Progress } from '@shadcn/progress';
 import {
   Tooltip,
   TooltipContent,
@@ -28,52 +27,6 @@ export function DyProgressBar({
   }, [currentStep, totalSteps]);
 
   return <LinearProgressWithLabelValue value={progress} />;
-  /*
-  if (currentStep === totalSteps) {
-    return (
-      <Progress
-        value={progress}
-        className="[&>*]:bg-green-600"
-        max={100}
-        indicatorColor="bg-green-300"
-      />
-    );
-  }
-  return (
-    <Progress
-      value={progress}
-      className="[&>*]:bg-red-600"
-      max={100}
-      indicatorColor="bg-black-300"
-    />
-  );
-  */
-}
-
-interface DynamicProgressBarProps {
-  total: number;
-  progress: number;
-}
-
-export function DynamicProgressBar({
-  total,
-  progress,
-}: DynamicProgressBarProps) {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    const percentage = (progress / total) * 100;
-    setValue(percentage);
-  }, [progress, total]);
-
-  return (
-    <Progress
-      value={value}
-      className="[&>*]:bg-red-600"
-      max={100}
-      indicatorColor="bg-blue-300"
-    />
-  );
 }
 
 export function ViewButton({ job }: { job: Job }) {

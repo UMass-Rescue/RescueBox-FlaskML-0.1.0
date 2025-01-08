@@ -14,9 +14,6 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import console from 'console';
 import isDummyMode from 'src/shared/dummy_data/set_dummy_mode';
-// import ReactDOM from 'react-dom';
-// import { useEffect } from 'react';
-// import Deploy from 'src/renderer/audit_logs/Deploy';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import * as registration from './handlers/registration';
@@ -139,71 +136,6 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-/**
- * Window Management ...
- */
-// eslint-disable-next-line func-names, @typescript-eslint/no-unused-vars
-const createDeployWindow = async (top: BrowserWindow) => {
-  try {
-    const RESOURCES_PATH = app.isPackaged
-      ? path.join(process.resourcesPath, 'assets')
-      : path.join(__dirname, '../../assets');
-
-    const getAssetPath = (...paths: string[]): string => {
-      return path.join(RESOURCES_PATH, ...paths);
-    };
-
-    let rbWindow: BrowserWindow | null;
-    const mainIndex = resolveHtmlPath('rb.html'); // the login window
-    const iconPath = getAssetPath('icon.png'); // replace with your own logo
-    rbWindow = new BrowserWindow({
-      // 1. create new Window
-      height: 300,
-      width: 300,
-      // eslint-disable-next-line no-path-concat
-      icon: __dirname + iconPath,
-      frame: false, // I had my own style of title bar, so I don't want to show the default
-      backgroundColor: '#68b7ad', // I had to set back color to window in case the white screen show up
-      // backgroundColor: '#420024',
-      parent: top,
-      modal: true,
-      show: false, // to prevent the white screen when loading the window, lets not show it first
-      webPreferences: {
-        // preload: path.join(__dirname, 'preload.js'),
-        nodeIntegration: true, // Enable Node.js in the renderer process (if needed)
-        contextIsolation: false, // Disable context isolation (if needed)
-      },
-    });
-
-    rbWindow.loadFile(mainIndex);
-
-    rbWindow.webContents.once('dom-ready', () => {
-      console.log('child window log here ....');
-
-      rbWindow?.webContents.executeJavaScript(`
-        log.info('JavaScript executed from Electron main process!');
-        const { render } = require('react-dom');
-        const React = require('react');
-        const DeployComponent = require('src/renderer/audit_logs/Deploy').default;
-        render(React.createElement(DeployComponent), document.getElementById('root'));
-      `);
-    });
-
-    rbWindow.once('ready-to-show', () => {
-      // rbWindow?.setAlwaysOnTop(true);
-      top.show();
-      rbWindow?.show();
-      rbWindow?.webContents.send('message-from-main', 'Hello from Deploy!');
-    });
-
-    rbWindow.on('closed', () => {
-      rbWindow = null;
-    });
-  } catch (error) {
-    log.info(error);
-  }
-};
-
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -239,8 +171,6 @@ const createWindow = async () => {
       webSecurity: process.env.NODE_ENV !== 'development',
     },
   });
-
-  // createDeployWindow(mainWindow);
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 

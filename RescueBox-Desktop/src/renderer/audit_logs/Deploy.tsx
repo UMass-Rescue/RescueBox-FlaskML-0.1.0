@@ -2,11 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useDeploy } from '../lib/hooks';
 import { Button } from '../components/ui/button';
-import {
-  DyProgressBar,
-  DynamicProgressBar,
-} from '../components/custom_ui/customButtons';
-// import LoadingIcon from '../components/icons/LoadingIcon';
+import { DyProgressBar } from '../components/custom_ui/customButtons';
 import GreenRunIcon from '../components/icons/GreenRunIcon';
 import LoadingScreen from '../components/LoadingScreen';
 
