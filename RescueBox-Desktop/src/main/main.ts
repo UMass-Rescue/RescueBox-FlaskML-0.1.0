@@ -181,7 +181,6 @@ const createWindow = async () => {
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
-      // mainWindow?.webContents.send('message-from-main', 'Hello from Main!');
       mainWindow.show();
     }
   });

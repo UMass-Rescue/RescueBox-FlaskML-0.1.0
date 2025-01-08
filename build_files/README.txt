@@ -28,9 +28,9 @@ Desktop main.ts calls rbserver.ts method , this calls powershell installer.ps1
 
 powershell runs during install , to install python + ( not needed:download large files from onedrive ) + start flask_ml server for each of the 4 plugins
 
-rb.py kills the python servers and restarts them 
+rb.py : kills the python servers and restarts them . called from installer.ps1 to save pids . called from desktop to restart servers.
 
-these cmds are to make the RB exe from souce
+rb.bat : these cmds are to make the RB exe from souce
 npm install
 npm run postinstall
 npm run build
