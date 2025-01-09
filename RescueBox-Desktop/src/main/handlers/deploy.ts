@@ -67,8 +67,6 @@ const getDeploy = async (_event: any, arg: any) => {
 
 async function stopDeploy(_event: any, _arg: any) {
   log.info('stop deploy not implemented');
-  log.transports.file.getFile().clear();
-  log.create({ logId: 'main' });
   return true;
   // stop deploy
 }

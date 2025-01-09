@@ -36,20 +36,19 @@ Section "Uninstall"
   SendMessage $0 ${WM_CLOSE} 0 0
 
   ExpandEnvStrings $0 %COMSPEC%
-  Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop\locales"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.dll"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.pak"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
+  ;Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop\locales"'
+  ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.dll"'
+  ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.pak"'
+  ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
+  ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
 
   Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop"'
-
-
+  Var /GLOBAL INSTDIR_LOG
+  Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
+  Exec "del /f /q $INSTDIR_LOG\*.log"
 SectionEnd
 
 !macro customRemoveFiles
-  Var /GLOBAL INSTDIR_LOG
-  Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
-  Exec "del /f /q $INSTDIR_LOG\main.log"
+  ;Exec "del /f /q $INSTDIR_DAT\assets\rb_server\rb_process.txt"
 !macroend
 
