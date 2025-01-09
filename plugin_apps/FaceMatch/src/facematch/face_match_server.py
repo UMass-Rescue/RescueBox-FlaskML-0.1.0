@@ -1,5 +1,34 @@
 import json
-import os
+import os, sys
+import shutil
+if getattr(sys, 'frozen', False):
+#   pre req path C:\Users\<USERPROFILE>\.deepface\weights 
+    print("Running in a PyInstaller bundle")
+    #os.environ['DEEPFACE_HOME'] = sys._MEIPASS
+    FACEMATCH_DIR  = os.path.join(os.environ['USERPROFILE'], ".deepface", "weights")
+    MATPLOTLIB_DIR = os.path.join(os.environ['USERPROFILE'], ".matplotlib")
+    KERAS_DIR = os.path.join(os.environ['USERPROFILE'], ".keras")
+    os.makedirs(FACEMATCH_DIR, exist_ok=True)
+    os.makedirs(MATPLOTLIB_DIR, exist_ok=True)
+    os.makedirs(KERAS_DIR, exist_ok=True)
+
+    src_file = os.path.join('.deepface', 'weights', 'arcface_weights.h5')
+    dest_file = os.path.join( FACEMATCH_DIR, 'arcface_weights.h5')
+    shutil.copyfile(src_file, dest_file)
+
+    src_file = os.path.join('.deepface', 'weights', 'yolov8n-face.pt')
+    dest_file = os.path.join( FACEMATCH_DIR, 'yolov8n-face.pt')
+    shutil.copyfile(src_file, dest_file)
+
+    #script_dir = sys._MEIPASS
+    #src_file = os.path.join(script_dir, 'fontlist-v390.json')
+    #dest_file = os.path.join( MATPLOTLIB_DIR, 'fontlist-v390.json')
+    #shutil.copyfile(src_file, dest_file)
+
+    #src_file = os.path.join(script_dir, 'keras.json')
+    #dest_file = os.path.join( KERAS_DIR, 'keras.json')
+    #shutil.copyfile(src_file, dest_file)
+    
 from pathlib import Path
 from typing import List, TypedDict
 
@@ -20,11 +49,22 @@ from src.facematch.utils.GPU import check_cuDNN_version
 from src.facematch.utils.logger import log_info
 from src.facematch.utils.resource_path import get_resource_path
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# for pyinstaller
+if getattr(sys, 'frozen', False):
+    #script_dir = sys._MEIPASS
+    os.environ["PATH"] += os.pathsep + script_dir
+    os.chdir(script_dir)
+    log_info("Running in  script_dir")
+
+log_info(script_dir)
+
 server = MLServer(__name__)
 
 # Add static location for app-info.md file
-script_dir = os.path.dirname(os.path.abspath(__file__))
-info_file_path = os.path.join(script_dir, "..", "app-info.md")
+# run pyinstaller in same folder as app-info.md location
+info_file_path = os.path.join(".", "app-info.md")
 
 server.add_app_metadata(
     name="Face Recognition and Matching",
@@ -214,12 +254,17 @@ def bulk_upload_endpoint(
     input_directory_paths = [
         item.path for item in inputs["directory_paths"].directories
     ]
+    log_info(parameters["dropdown_database_name"])
+    log_info(parameters["database_name"])
     log_info(input_directory_paths[0])
     # Call the model function
     response = face_match_model.bulk_upload(
         input_directory_paths[0], parameters["database_name"]
     )
-
+    log_info(response)
+    if "error" in response:
+        raise Exception(response)
+    
     if response.startswith("Successfully uploaded") and response.split(" ")[2] != "0":
         # Some files were uploaded
         if parameters["dropdown_database_name"] == "Create a new database":
@@ -229,4 +274,5 @@ def bulk_upload_endpoint(
     return ResponseBody(root=TextResponse(value=response))
 
 
-server.run(port=5010)
+if __name__ == "__main__":
+    server.run(port=5010)

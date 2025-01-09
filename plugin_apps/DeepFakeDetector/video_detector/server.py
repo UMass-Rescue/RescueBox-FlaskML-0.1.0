@@ -30,12 +30,14 @@ import json
 server = MLServer(__name__)
 
 server.add_app_metadata(
-    name="XceptionNet Video DeepFake Detector",
+    name="Video DeepFake Detector",
     author="UMass Rescue",
     version="0.1.0",
-    info=load_file_as_string("app_info.md"),
+    info=load_file_as_string("app-info.md"),
 )
 
+
+server.endpoints
 def create_deepfake_detection_task_schema() -> TaskSchema:
     return TaskSchema(
         inputs=[
