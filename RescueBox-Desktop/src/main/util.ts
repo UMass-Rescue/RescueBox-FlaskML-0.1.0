@@ -1,11 +1,35 @@
 /* eslint import/prefer-default-export: off */
 import { URL } from 'url';
 import path from 'path';
+import fs from 'fs';
 import { Model } from 'sequelize';
 import { InferAttributes } from 'sequelize/types/model';
 import { app, Notification, BrowserWindow } from 'electron';
 
 export function resolveHtmlPath(htmlFileName: string) {
+  const U = process.env.USERPROFILE || '';
+  const py = path.join(U, 'python311', 'python.exe');
+  if (fs.existsSync(py)) {
+    process.env.PY = py;
+    // %LOCALAPPDATA%\Programs\RescueBox-Desktop\
+    const AP = process.env.LOCALAPPDATA || '';
+    const sc = path.join(
+      AP,
+      'Programs',
+      'RescueBox-Desktop',
+      'resources',
+      'assets',
+      'rb_server',
+    );
+    if (fs.existsSync(sc)) {
+      process.env.RBPY = sc;
+    } else {
+      process.env.RBPY = '../../assets/rb_server'; // ?? on dev setup for example , try relative path ?
+    }
+  } else {
+    process.env.PY = 'python'; // assume in the path
+  }
+
   if (process.env.NODE_ENV === 'development') {
     const port = process.env.PORT || 1212;
     const url = new URL(`http://localhost:${port}`);

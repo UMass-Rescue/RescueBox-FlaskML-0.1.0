@@ -24,7 +24,9 @@ import JobViewOutputs from './jobs/JobViewOutputs';
 import FallbackError from './components/FallbackError';
 import RegistrationIcon from './components/icons/RegistrationIcon';
 import LogsIcon from './components/icons/LogsIcon';
+import { RedCircleIcon } from './components/icons/CircleIcons';
 import AuditLogs from './audit_logs/AuditLogs';
+import RBDeploy from './audit_logs/Deploy';
 import ModelRunTask from './models/ModelRunTask';
 import ModelAppConnect from './registration/ModelAppConnect';
 import { NavBarItem, ImageTitleNavBar } from './navigation/NavBarItem';
@@ -52,6 +54,11 @@ function RootLayout() {
             <NavBar />
           </div>
           <div className="pr-2 flex flex-row">
+            <NavBarItem path="/deploy">
+              <ImageTitleNavBar path="/deploy">
+                <RedCircleIcon />
+              </ImageTitleNavBar>
+            </NavBarItem>
             <NavBarItem path="/logs">
               <ImageTitleNavBar path="/logs">
                 <LogsIcon className="fill-black group-[.is-active]:fill-blue-500" />
@@ -90,6 +97,7 @@ export default function App() {
             </Route>
           </Route>
           <Route path="/logs" element={<AuditLogs />} />
+          <Route path="/deploy" element={<RBDeploy />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/models" element={<Models />} />
           <Route path="/models/:modelUid/details" element={<ModelDetails />} />

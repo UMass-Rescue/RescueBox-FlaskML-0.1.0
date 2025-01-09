@@ -9,9 +9,10 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+import log from 'electron-log';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log/main';
+import console from 'console';
 import isDummyMode from 'src/shared/dummy_data/set_dummy_mode';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -20,15 +21,18 @@ import * as job from './handlers/job';
 import * as models from './handlers/models';
 import * as fileSystem from './handlers/file-system';
 import * as loggingHandler from './handlers/logging';
+import * as deployHandler from './handlers/deploy';
 import * as taskHandler from './handlers/task';
 import DatabaseConn, { getDbPath } from './database/database-conn';
+import RBServer from './rbserver';
 
 // It preloads electron-log IPC code in renderer processes
+const mlog = log.create({ logId: 'main' });
 log.initialize();
 
 class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
+    mlog.transports.file.level = 'info';
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
   }
@@ -94,6 +98,7 @@ function setupIpcMain() {
 
   // Logging: handles logging operations
   ipcMain.handle('logging:get-logs', loggingHandler.getLogs);
+  ipcMain.handle('deploy:get-deploy', deployHandler.getDeploy);
   ipcMain.handle('logging:clear-logs', loggingHandler.clearLogs);
 
   // Task: handles task service operations
@@ -130,10 +135,6 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
-
-/**
- * Window Management ...
- */
 
 const createWindow = async () => {
   if (isDebug) {
@@ -221,23 +222,33 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
-    setupIpcMain();
-    const dbPath = getDbPath(app);
-    log.info('Database location is', dbPath);
-    if (isDummyMode) {
-      log.info('Initializing dummy data');
-      await DatabaseConn.initDatabaseTest(dbPath);
-    } else {
-      log.info('Initializing database');
-      await DatabaseConn.initDatabase(dbPath);
-      // await DatabaseConn.resetDatabase(dbPath); // For testing purposes only
+    try {
+      setupIpcMain();
+      const dbPath = getDbPath(app);
+      log.info('Database location is', dbPath);
+      if (isDummyMode) {
+        log.info('Initializing dummy data');
+        await DatabaseConn.initDatabaseTest(dbPath);
+      } else {
+        log.info('Initializing database');
+        await DatabaseConn.initDatabase(dbPath);
+        // await DatabaseConn.resetDatabase(dbPath); // For testing purposes only
+      }
+
+      const cwd = app.getPath('userData');
+      RBServer.appath = cwd;
+      log.info('Run powershell script to install Model Servers..');
+      await RBServer.installRBserver(cwd);
+
+      createWindow();
+      app.on('activate', () => {
+        // On macOS it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        console.log('Activating app');
+        if (mainWindow === null) createWindow();
+      });
+    } catch (error) {
+      console.log(error);
     }
-    createWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      console.log('Activating app');
-      if (mainWindow === null) createWindow();
-    });
   })
   .catch(console.log);

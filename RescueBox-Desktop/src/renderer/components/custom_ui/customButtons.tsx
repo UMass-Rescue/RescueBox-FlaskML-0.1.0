@@ -1,4 +1,5 @@
 import { Button } from '@shadcn/button';
+import { useEffect, useState } from 'react';
 import {
   Tooltip,
   TooltipContent,
@@ -7,8 +8,26 @@ import {
 } from '@shadcn/tooltip';
 import { Link } from 'react-router-dom';
 import { Job, MLModel } from 'src/shared/models';
+import LinearProgressWithLabelValue from '../ui/progressWithValue';
 import CancelIcon from '../icons/CancelIcon';
 import DeleteIcon from '../icons/DeleteIcon';
+
+export function DyProgressBar({
+  totalSteps,
+  currentStep,
+}: {
+  totalSteps: number;
+  currentStep: number;
+}) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const calculatedProgress = (currentStep / totalSteps) * 100;
+    setProgress(calculatedProgress);
+  }, [currentStep, totalSteps]);
+
+  return <LinearProgressWithLabelValue value={progress} />;
+}
 
 export function ViewButton({ job }: { job: Job }) {
   return (

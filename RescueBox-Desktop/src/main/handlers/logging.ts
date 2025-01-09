@@ -6,6 +6,6 @@ export async function getLogs(_event: any, _arg: any) {
 }
 
 export async function clearLogs(_event: any, _arg: any) {
-  log.info('Clearing logs');
-  return log.transports.file.getFile().clear();
+  log.transports.file.getFile().clear();
+  return true;
 }
