@@ -25,10 +25,10 @@ SectionEnd
 
 Section "Uninstall"
   Var /GLOBAL INSTDIR_DAT
-  Strcpy "$INSTDIR_DAT" "$LocalAppdata\Programs\RescueBox-Desktop\resources"
+  Strcpy "$INSTDIR_DAT" "$INSTDIR\RescueBox-Desktop\resources"
 
   Var /GLOBAL PY_PATH
-  Strcpy "$PY_PATH" "$PROFILE\python311\python.exe"
+  Strcpy "$PY_PATH" "$INSTDIR\python311\python.exe"
   ExpandEnvStrings $0 %COMSPEC%
   Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\assets\rb_server\rb.py"'
 
@@ -42,13 +42,13 @@ Section "Uninstall"
   ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
   ;Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
 
-  Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop"'
+  Exec '"$0" /C rmdir /s /q "$INSTDIR\RescueBox-Desktop"'
   Var /GLOBAL INSTDIR_LOG
   Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
   Exec "del /f /q $INSTDIR_LOG\*.log"
 SectionEnd
 
 !macro customRemoveFiles
-  ;Exec "del /f /q $INSTDIR_DAT\assets\rb_server\rb_process.txt"
+  ;Exec "del /f /q $AppData\RescueBox-Desktop\logs\rb_process.txt"
 !macroend
 

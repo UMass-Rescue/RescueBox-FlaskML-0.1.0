@@ -235,7 +235,7 @@ app
         // await DatabaseConn.resetDatabase(dbPath); // For testing purposes only
       }
 
-      const cwd = app.getPath('userData');
+      const cwd = app.getPath('appData');
       RBServer.appath = cwd;
       log.info('Run powershell script to install Model Servers..');
       await RBServer.installRBserver(cwd);

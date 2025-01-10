@@ -85,12 +85,17 @@ export default class RegisterModelService {
     return fetch(`http://${serverAddress}:${serverPort}${APP_METADATA_SLUG}`)
       .then(async (res) => {
         if (res.status === 404) {
-          throw new Error('404 APP_METADATA_SLUG not found on server', {
-            cause: res.statusText,
-          });
+          throw new Error(
+            `404 APP_METADATA_SLUG not found on backend server at port ${serverPort}`,
+            {
+              cause: res.statusText,
+            },
+          );
         }
         if (res.status !== 200) {
-          throw new Error('Failed to fetch app metadata.');
+          throw new Error(
+            `Failed to fetch app metadata from backend server at port ${serverPort}.`,
+          );
         }
         return res.json();
       })

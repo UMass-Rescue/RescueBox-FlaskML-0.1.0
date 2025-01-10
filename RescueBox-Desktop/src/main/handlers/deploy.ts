@@ -7,16 +7,20 @@ import { showNotification } from '../util';
 
 const getDeploy = async (_event: any, arg: any) => {
   try {
-    const pidsPath = process.resourcesPath;
     let rbLogPath = RBServer.appath;
     // log.info('rbLog path', rbLogPath);
     if (!rbLogPath) {
       log.error('rbLog path not defined');
-      rbLogPath = path.join('.', 'logs', 'main.log');
+      rbLogPath = path.join('.', 'logs');
       return -1;
     }
-    const rbLog = path.join(rbLogPath, 'logs', 'main.log');
-    const pids = path.join(pidsPath, 'assets', 'rb_server', 'rb_process.txt');
+    const rbLog = path.join(rbLogPath, 'RescueBox-Desktop', 'logs', 'main.log');
+    const pids = path.join(
+      rbLogPath,
+      'RescueBox-Desktop',
+      'logs',
+      'rb_process.txt',
+    );
     // log.info(`rbLog file ${rbLog}`);
     // log.info(`pids file ${pids}`);
     if (fs.existsSync(pids)) {
