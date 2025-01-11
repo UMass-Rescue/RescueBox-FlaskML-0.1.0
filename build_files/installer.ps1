@@ -93,7 +93,7 @@ if (!$SKIP_INSTALL) {
       Write-Output "Installing Python.."
       # Read-Host "[Press enter to continue]"
 
-      Start-Process -FilePath .\python-3.11.2-amd64.exe -ArgumentList "/quiet /repair InstallAllUsers=0 PrependPath=0 Include_pip=1 TargetDir=$RB_PYTHON /log $RB_LOG\rb-python311-Install.log" -Wait
+      Start-Process -FilePath .\python-3.11.2-amd64.exe -ArgumentList "/quiet Include_pip=1 TargetDir=$RB_PYTHON /log $RB_LOG\rb-python311-Install.log" -WindowStyle Minimized -Wait
 
       #.\python-3.12.6-amd64.exe /quiet InstallAllUsers=0 PrependPath=1 Include_test=0"
     }else{
@@ -111,19 +111,22 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
   Write-Output "Python is installed."
   if (Test-Path -Path "$RB_PYTHON\scripts\pip.exe") {
     & cmd.exe /c "$RB_PYTHON\scripts\pip.exe -V"
+    Write-Output "Install 3.11 pipenv.exe"
+    Start-Process -FilePath "$RB_PYTHON\scripts\pip.exe" -ArgumentList "install pipenv > $RB_LOG\rb_py.log 2>$RB_LOG\rb_py_err.log" -WindowStyle Minimized -Wait
   } else {
     Write-Output "Install pip.exe"
     & cmd.exe /c "$RB_PYTHON\python.exe -m ensurepip --user && pip -V"
+    Write-Output "Install pipenv.exe"
+    Start-Process -FilePath "pip.exe" -ArgumentList "install pipenv > $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
   }
-  Write-Output "Install pipenv.exe"
-  Start-Process -FilePath "pip.exe" -ArgumentList "install pipenv > $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
+
   Write-Output "Install pip requirements.txt"
-  Start-Process -FilePath "pip.exe" -ArgumentList "install -r $RB_HOME\requirements.txt >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
+  Start-Process -FilePath "pip.exe" -ArgumentList "install -r $RB_HOME\requirements.txt >> $RB_LOG\rb_py.log" -WindowStyle Minimized -Wait
 
 	Write-Output "Installing Python modules..."
 	Set-Location $RB_HOME\plugin_apps\audio-transcription
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--rm >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
+  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--rm >> $RB_LOG\rb_py.log" -WindowStyle Minimized -Wait
+  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log" -WindowStyle Minimized -Wait
 	Set-Location $RB_HOME\plugin_apps\audio-transcription\audio_transcription
   Write-Output "Starting Model Server..audio_transcription"
   Start-Process cmd -PassThru -ArgumentList "/c start /b $RB_PYTHON\scripts\pipenv.exe run python server.py" -NoNewWindow

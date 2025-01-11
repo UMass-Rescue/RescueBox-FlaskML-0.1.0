@@ -11,3 +11,4 @@ plugin_apps/FaceMatch/.deepface/weights/arcface_weights.h5
 *.zip
 saved/**
 n.bat
+build_files/Scripts/*

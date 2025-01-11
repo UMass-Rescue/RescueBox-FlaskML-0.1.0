@@ -26,8 +26,8 @@ const getDeploy = async (_event: any, arg: any) => {
     if (fs.existsSync(pids)) {
       const lineArray = fs.readFileSync(pids).toString().split('\n');
       log.info(`progress found ${lineArray.length}`);
-      if (lineArray.length > 2) {
-        log.info('at least 1 model pid found');
+      if (lineArray.length > 3) {
+        log.info('at least 2 model pid found');
         showNotification(
           'In Progress',
           `Click Logs to view details.`,
