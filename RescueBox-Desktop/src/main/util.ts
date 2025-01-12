@@ -8,11 +8,18 @@ import { app, Notification, BrowserWindow } from 'electron';
 
 export function resolveHtmlPath(htmlFileName: string) {
   const U = '.';
-  const py = path.join(U, 'python311', 'python.exe');
+  const py = path.join(
+    U,
+    'resources',
+    'assets',
+    'rb_server',
+    'python311',
+    'python.exe',
+  );
   if (fs.existsSync(py)) {
     process.env.PY = py;
     // %LOCALAPPDATA%\Programs\RescueBox-Desktop\
-    const sc = path.join('.', 'rb.py');
+    const sc = path.join(U, 'resources', 'assets', 'rb_server', 'rb.py');
     if (fs.existsSync(sc)) {
       process.env.RBPY = sc;
     } else {

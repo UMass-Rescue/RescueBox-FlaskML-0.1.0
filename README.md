@@ -44,7 +44,9 @@ Files are located here : C:\Users\<USERNAME>\AppData\Roaming\RescueBox-Desktop\l
 1 First look at the eror in the task execution result or the log in the UI. 
 2 Typical errors are due to : image /video /audio files not readable , perhaps due to unsupported format.
 3 Other errors are due to not able to read from the input path or write to output path.
-
+4 rb_py.log tracks pip and pienv cmdlines , about dependencies for model code.
+5 main.log is the overall rescuebox UI and Model server logs
+6 other logs are from python installer.
 
 # Development
 

@@ -59,7 +59,7 @@ if (!$SKIP_INSTALL) {
     $Shortcut.Save()
   }
 
-  Write-Output "Installing RB Server...from $RB_HOME"
+  Write-Output "Installing RB Server from $RB_HOME"
 
   $PATH=$env:Path
 
@@ -68,17 +68,17 @@ if (!$SKIP_INSTALL) {
   $RB_PYTHON="$RB_HOME\$PYTHON_VERSION"
   #$env:PATH = "$env:USERPROFILE;$env:USERPROFILE\AppData\Local\Programs\Python"
   $env:Path= $RB_PYTHON
-  if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
-
-      # " if folder [$RB_PYTHON]  exists uninstall python "
-      if (Test-Path -Path $RB_PYTHON) {
-        Write-Output "Un Installing pre existing Python 3.11"
-        Start-Process -FilePath .\python-3.11.2-amd64.exe -ArgumentList "/uninstall /quiet" -Wait
-      }
-    } else {
-      mkdir "$RB_PYTHON"
-      Write-Output "No pre existing Python 3.11 for RB found, proceed with new Install to $RB_PYTHON"
-    }
+      # if folder [$RB_PYTHON]  exists uninstall python
+  if (Test-Path -Path $RB_PYTHON) {
+     Write-Output "Pre existing Python 3.11 found"
+  } else {
+    New-Item "$RB_PYTHON" -ItemType Directory -ea 0
+    Write-Output "No pre existing Python 3.11 for RB found, proceed to install in $RB_PYTHON"
+  }
+  Write-Output "Pre existing Python repair"
+  Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/repair /quiet" -Wait
+  Write-Output "Pre existing Python uninstall"
+  Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/uninstall /quiet" -Wait
 
   Write-Output "PROGRESS 2 of 5"
 
@@ -91,11 +91,11 @@ if (!$SKIP_INSTALL) {
       [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
       #Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.12.0/python-3.12.0-amd64.exe" -OutFile ".\python-3.12.0.exe"
       Write-Output "Installing Python.."
-      # Read-Host "[Press enter to continue]"
+      # uninstal in case RB_HOME was a different location and not cleaned up
+      Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/uninstall /quiet" -Wait
+      # install to the location we need
+      Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/repair /quiet Include_pip=1 InstallAllUsers=0 PrependPath=0 TargetDir=$RB_PYTHON /log $RB_LOG\rb-python311-Install.log" -WindowStyle Minimized -Wait
 
-      Start-Process -FilePath .\python-3.11.2-amd64.exe -ArgumentList "/quiet Include_pip=1 TargetDir=$RB_PYTHON /log $RB_LOG\rb-python311-Install.log" -WindowStyle Minimized -Wait
-
-      #.\python-3.12.6-amd64.exe /quiet InstallAllUsers=0 PrependPath=1 Include_test=0"
     }else{
       Write-Output "Please install python https://python.org"
       # Read-Host "[Press enter to continue]"
@@ -110,46 +110,71 @@ $env:Path="$RB_PYTHON;$env:Path;$RB_PYTHON\Scripts;$PATH"
 if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
   Write-Output "Python is installed."
   if (Test-Path -Path "$RB_PYTHON\scripts\pip.exe") {
+    Write-Output "Found 3.11 pip.exe"
     & cmd.exe /c "$RB_PYTHON\scripts\pip.exe -V"
     Write-Output "Install 3.11 pipenv.exe"
-    Start-Process -FilePath "$RB_PYTHON\scripts\pip.exe" -ArgumentList "install pipenv > $RB_LOG\rb_py.log 2>$RB_LOG\rb_py_err.log" -WindowStyle Minimized -Wait
+    Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pip.exe install pipenv >$RB_LOG\rb_py.log" -NoNewWindow -Wait
   } else {
+    # Sometimes pip is not installed by python msi hence this logic
     Write-Output "Install pip.exe"
-    & cmd.exe /c "$RB_PYTHON\python.exe -m ensurepip --user && pip -V"
-    Write-Output "Install pipenv.exe"
-    Start-Process -FilePath "pip.exe" -ArgumentList "install pipenv > $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
+    # & cmd.exe /c "msiexec.exe /i $RB_HOME\pip.msi /QN /L*V $RB_LOG\pip_install.log"
+    Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\python.exe -m ensurepip --user > $RB_LOG\rb_py.log && pip -V" -NoNewWindow -Wait
+    if (Test-Path -Path "$env:APPDATA\Python\Python311\Scripts") {
+        Write-Output "Copy pip.exe"
+        New-Item "$RB_PYTHON\scripts" -ItemType Directory -ea 0
+        Set-Location $RB_PYTHON\scripts
+        Copy-Item -Path "$env:APPDATA\Python\Python311\Scripts\pip3.exe" -Destination "$RB_PYTHON\scripts\pip.exe" -Recurse
+        Copy-Item -Path "$env:APPDATA\Python\Python311\site-packages" -Destination "$RB_PYTHON\Lib\site-packages" -Recurse
+        Write-Output "Install pipenv.exe"
+        Start-Process -FilePath "cmd.exe" -ArgumentList "/c  $RB_PYTHON\scripts\pip.exe install pipenv >$RB_LOG\rb_py.log 2> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
+    }
+    # maybe clean registry could help ?
+    # Get-ChildItem -Path "HKLM:\Software" -Recurse -Name *3.11*
+    # Remove-Item -Path "HKLM:\SOFTWARE\YourKeyName" -Recurse -Force
   }
 
   Write-Output "Install pip requirements.txt"
-  Start-Process -FilePath "pip.exe" -ArgumentList "install -r $RB_HOME\requirements.txt >> $RB_LOG\rb_py.log" -WindowStyle Minimized -Wait
+  Set-Location $RB_PYTHON\scripts
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pip.exe install -r $RB_HOME\requirements.txt >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
 
 	Write-Output "Installing Python modules..."
 	Set-Location $RB_HOME\plugin_apps\audio-transcription
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--rm >> $RB_LOG\rb_py.log" -WindowStyle Minimized -Wait
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log" -WindowStyle Minimized -Wait
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --rm >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
 	Set-Location $RB_HOME\plugin_apps\audio-transcription\audio_transcription
   Write-Output "Starting Model Server..audio_transcription"
-  Start-Process cmd -PassThru -ArgumentList "/c start /b $RB_PYTHON\scripts\pipenv.exe run python server.py" -NoNewWindow
-  $a=(Get-CimInstance -Class Win32_Process -Filter "name ='pipenv.exe'" | Select-Object ParentProcessId | Format-Table -HideTableHeaders | Out-String).Trim()
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c start /b $RB_PYTHON\scripts\pipenv.exe run python server.py" -NoNewWindow
+  $a=(Get-CimInstance -Class Win32_Process -Filter "name ='pipenv.exe'" | Select-Object ProcessId | Format-Table -HideTableHeaders | Out-String).Trim()
   Write-Output "pid is audio=$a"
 	"audio=$a" | Out-File  $RB_LOG\rb_process.txt -Append
-  Write-Output "PROGRESS 5 of 5"
-} else {
+  Write-Output "PROGRESS 4 of 5"
+  # do all 4 servers } else {
 	Set-Location $RB_HOME\plugin_apps\FaceMatch
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--rm >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
-
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --rm >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
+  # copy weights , other pre-reqs to prevent download
+  Copy-Item -Path "$RB_HOME\plugin_apps\FaceMatch\.deepface" -Destination "$env:USERPROFILE\.deepface" -Recurse -ea 0
+  Copy-Item -Path "$RB_HOME\plugin_apps\FaceMatch\.matplotlib" -Destination "$env:USERPROFILE\.matplotlib" -Recurse -ea 0
+  Copy-Item -Path "$RB_HOME\plugin_apps\FaceMatch\.keras" -Destination "$env:USERPROFILE\.keras" -Recurse -ea 0
   Start-Process cmd -PassThru -ArgumentList "/c start /b $RB_PYTHON\scripts\pipenv.exe run python.exe -m src.facematch.face_match_server" -NoNewWindow
-  $f=(Get-CimInstance -Class Win32_Process -Filter "name ='pipenv.exe'" | Select-Object ParentProcessId | Format-Table -HideTableHeaders | Out-String).Trim()
-  $f | ForEach-Object {
-    Write-Host $_
-    if ($_ -notin $a.ToArray()) {
-      Write-Output "pid is facematch=$_" | Out-File  $RB_LOG\rb_process.txt -Append
+  $pids = @()
+  $f=(Get-CimInstance -Class Win32_Process -Filter "name ='pipenv.exe'" | Select-Object ProcessId | Format-Table -HideTableHeaders | Out-String).Trim()
+  Write-Output "pid is face=$f"
+  $a=$f.split([Environment]::NewLine)[0].trim()
+  $pids +=$a
+  $b=$f.split([Environment]::NewLine)[2].trim()
+
+  $pids +=$b
+  $pids | ForEach-Object {
+    if ($_ -notin $a) {
+      Write-Output "pid is f=$_"
+      $f=$_
+      "facematch=$f" | Out-File  $RB_LOG\rb_process.txt -Append
     }
   }
-  $pids = $f + $a.ToArray()
+  Write-Output "face pid is f=$f"
   Write-Output "all pid is $pids"
-
+  Write-Output "PROGRESS 4 of 5"
   #$DownloadURL = "https://umass-my.sharepoint.com/:u:/r/personal/jaikumar_umass_edu/Documents/yolov8n-face.pt?csf=1&web=1&e=IEEIKB"
   #$DownloadURL = "https://umass-my.sharepoint.com/:u:/r/personal/jaikumar_umass_edu/Documents/dffd_M_unfrozen.ckpt?csf=1&web=1&e=FULPVd"
   # this file is 1.5 gb hence download during deploy is needed
@@ -159,19 +184,38 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
   # Invoke-WebRequest -Uri $DownloadURL -OutFile $FilePath
 
 	Set-Location $RB_HOME\plugin_apps\DeepFakeDetector\image_model
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--rm >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --rm >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
 
 	Set-Location $RB_HOME\plugin_apps\DeepFakeDetector\image_model\binary_deepfake_detection
-	$image = Start-Process cmd -PassThru -ArgumentList "/k pipenv run python.exe model_server.py" -WindowStyle Minimized
-  "dfImage= $image.Id" | Out-File $RB_LOG\rb_process.txt -Append
+	Start-Process -FilePath "cmd.exe" -ArgumentList "/c start /b pipenv run python.exe model_server.py" -NoNewWindow
+  $img=(Get-CimInstance -Class Win32_Process -Filter "name ='pipenv.exe'" | Select-Object ProcessId | Format-Table -HideTableHeaders | Out-String).Trim()
+
+  $myArray = @(0, 2, 4)
+  $myArray | ForEach-Object {
+    $i=$img.split([Environment]::NewLine)[$_].trim()
+    if ($i -notin $pids) {
+      Write-Output "pid is dfImage=$i"
+      "dfImage=$i" | Out-File  $RB_LOG\rb_process.txt -Append
+      $pids +=$i
+    }
+  }
 
 	Set-Location $RB_HOME\plugin_apps\DeepFakeDetector\video_detector
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--rm >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
-  Start-Process -FilePath "$RB_PYTHON\scripts\pipenv.exe" -ArgumentList "--python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log" -WindowStyle Hidden -Wait
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --rm >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
 
-	$video = Start-Process cmd -PassThru -ArgumentList "/k pipenv run python.exe server.py" -WindowStyle Minimized
-  "dfVideo= $video.Id" | Out-File $RB_LOG\rb_process.txt -Append
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c start /b pipenv run python.exe server.py" -NoNewWindow
+  $vid=(Get-CimInstance -Class Win32_Process -Filter "name ='pipenv.exe'" | Select-Object ProcessId | Format-Table -HideTableHeaders | Out-String).Trim()
+
+  $myArray = @(0, 2, 4, 6)
+  $myArray | ForEach-Object {
+    $v=$vid.split([Environment]::NewLine)[$_].trim()
+    if ($v -notin $pids) {
+      Write-Output "pid is dfVideo=$v"
+      "dfVideo=$v" | Out-File  $RB_LOG\rb_process.txt -Append
+    }
+  }
 
   Write-Output "PROGRESS 5 of 5"
 	Write-Output "Installation complete. detailed log is in $RB_LOG\rb_py.log"
