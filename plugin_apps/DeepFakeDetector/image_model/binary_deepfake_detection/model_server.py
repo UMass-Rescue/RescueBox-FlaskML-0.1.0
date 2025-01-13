@@ -153,6 +153,7 @@ def give_prediction(inputs: Inputs, parameters: Parameters) -> ResponseBody:
 
 
 if __name__ == "__main__":
+    os.environ["TF_ENABLE_ONEDNN_OPTS"]=0
     parser = argparse.ArgumentParser(description="Run a server.")
     parser.add_argument(
         "--port", type=int, help="Port number to run the server", default=5005

@@ -1,8 +1,9 @@
 import json
 import os, sys
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import shutil
 if getattr(sys, 'frozen', False):
-#   pre req path C:\Users\<USERPROFILE>\.deepface\weights 
+#   pre req path C:\Users\<USERPROFILE>\.deepface\weights
     print("Running in a PyInstaller bundle")
     #os.environ['DEEPFACE_HOME'] = sys._MEIPASS
     FACEMATCH_DIR  = os.path.join(os.environ['USERPROFILE'], ".deepface", "weights")
@@ -28,7 +29,7 @@ if getattr(sys, 'frozen', False):
     #src_file = os.path.join(script_dir, 'keras.json')
     #dest_file = os.path.join( KERAS_DIR, 'keras.json')
     #shutil.copyfile(src_file, dest_file)
-    
+
 from pathlib import Path
 from typing import List, TypedDict
 
@@ -60,9 +61,22 @@ if getattr(sys, 'frozen', False):
 
 log_info(script_dir)
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# for pyinstaller
+if getattr(sys, 'frozen', False):
+    #script_dir = sys._MEIPASS
+    os.environ["PATH"] += os.pathsep + script_dir
+    os.chdir(script_dir)
+    log_info("Running in  script_dir")
+
+log_info(script_dir)
+
 server = MLServer(__name__)
 
 # Add static location for app-info.md file
+# run pyinstaller in same folder as app-info.md location
+info_file_path = os.path.join(".", "app-info.md")
 # run pyinstaller in same folder as app-info.md location
 info_file_path = os.path.join(".", "app-info.md")
 
@@ -208,7 +222,7 @@ def get_ingest_images_task_schema() -> TaskSchema:
             ),
             ParameterSchema(
                 key="database_name",
-                label="New Database Name (Optional)",
+                label="New Database Name",
                 value=TextParameterDescriptor(default="SampleDatabase"),
             ),
         ],
@@ -256,6 +270,8 @@ def bulk_upload_endpoint(
     ]
     log_info(parameters["dropdown_database_name"])
     log_info(parameters["database_name"])
+    log_info(parameters["dropdown_database_name"])
+    log_info(parameters["database_name"])
     log_info(input_directory_paths[0])
     # Call the model function
     response = face_match_model.bulk_upload(
@@ -264,7 +280,7 @@ def bulk_upload_endpoint(
     log_info(response)
     if "error" in response:
         raise Exception(response)
-    
+
     if response.startswith("Successfully uploaded") and response.split(" ")[2] != "0":
         # Some files were uploaded
         if parameters["dropdown_database_name"] == "Create a new database":
@@ -274,5 +290,7 @@ def bulk_upload_endpoint(
     return ResponseBody(root=TextResponse(value=response))
 
 
+if __name__ == "__main__":
+    server.run(port=5010)
 if __name__ == "__main__":
     server.run(port=5010)
