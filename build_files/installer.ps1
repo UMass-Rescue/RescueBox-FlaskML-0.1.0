@@ -154,6 +154,7 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
   Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
   # copy weights , other pre-reqs to prevent download
   Copy-Item -Path "$RB_HOME\plugin_apps\FaceMatch\.deepface" -Destination "$env:USERPROFILE\.deepface" -Recurse -ea 0
+  Copy-Item -Path "$RB_HOME\plugin_apps\DeepFakeDetector\image_model\binary_deepfake_detection\weights" -Destination "$env:USERPROFILE\.deepface" -Recurse -ea 0
   Copy-Item -Path "$RB_HOME\plugin_apps\FaceMatch\.matplotlib" -Destination "$env:USERPROFILE\.matplotlib" -Recurse -ea 0
   Copy-Item -Path "$RB_HOME\plugin_apps\FaceMatch\.keras" -Destination "$env:USERPROFILE\.keras" -Recurse -ea 0
   Start-Process cmd -PassThru -ArgumentList "/c start /b $RB_PYTHON\scripts\pipenv.exe run python.exe -m src.facematch.face_match_server" -NoNewWindow

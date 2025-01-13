@@ -22,6 +22,7 @@ fvcore = "*"
 retina-face = "*"
 flask-ml = "*"
 tf-keras = "*"
+pyinstaller = "*"
 
 [dev-packages]
 

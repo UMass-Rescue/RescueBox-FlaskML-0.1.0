@@ -8,9 +8,9 @@ To populate a database with images, utilize the **Upload Images to Database** en
 
 ### Inputs
 
-- **Image Directory:** A directory containing images to be added to the database.
+- **Image Directory:** A directory containing images to be added to the database. eg: resources\sample_images
 
-    - For multiple directories, repeat the upload process sequentially, ensuring that each previous directory has been successfully added before proceeding.
+    - advanced option: For multiple directories, repeat the upload process sequentially, ensuring that each previous directory has been successfully added before proceeding.
 
 - **Choose database:** A dropdown menu to select either an existing database to upload the images to or the option to create a new database.
 
@@ -26,7 +26,8 @@ To populate a database with images, utilize the **Upload Images to Database** en
 
 ## 2. Search for matches 
 
-- To search for facial matches within the existing database, use the **Find Matching Faces** endpoint.
+- To search for facial matches within the existing database, use the **Find Matching Faces** endpoint. 
+   eg file : resources\test_image.jpg
 
 ### Inputs
 

@@ -1,4 +1,4 @@
-import gc
+import os, sys, gc
 import cv2 as cv
 import numpy as np 
 import einops
@@ -33,7 +33,14 @@ class BNext4DFR(L.LightningModule):
             size = size_map[backbone]
             # loads the pretrained model
             self.base_model = nn.ModuleDict({"module": BNext(num_classes=1000, size=size)})
-            pretrained_state_dict = torch.load(f"pretrained/{size}_checkpoint.pth.tar", map_location="cpu")
+            pretrained_file = f"pretrained/{size}_checkpoint.pth.tar"
+            if getattr(sys, 'frozen', False):
+                script_dir = sys._MEIPASS
+                print(size)
+                msg = "debug file " + f"{size}_checkpoint.pth.tar"
+                print(msg)
+                pretrained_file = os.path.join(script_dir, 'pretrained', f"{size}_checkpoint.pth.tar")
+            pretrained_state_dict = torch.load(pretrained_file, map_location="cpu")
             self.base_model.load_state_dict(pretrained_state_dict)
             self.base_model = self.base_model.module
         else:
