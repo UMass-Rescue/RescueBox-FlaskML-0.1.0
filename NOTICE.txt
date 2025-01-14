@@ -1,0 +1,25 @@
+NOTICES AND INFORMATION
+Do Not Translate or Localize
+
+RescueBox V1.0
+Copyright 2024 RescueBox authors
+
+This product includes software developed at RescueLab Umass Amherst.
+
+This software incorporates material from third parties. Umass Amherst Rescue Lab
+makes certain open source code available at 
+https://github.com/UMass-Rescue/RescueBox-FlaskML-0.1.0
+
+Notwithstanding any other terms, you may reverse engineer this software to the
+extent required to debug changes to any libraries licensed under the GNU Lesser
+General Public License.
+
+------------------------------------------------------------------------------
+
+
+In the event that we accidentally failed to list a required notice, please
+bring it to our attention. Post an issue or email us:
+
+           owners_resuce_lab@umass.edu
+
+The attached notices are provided for information only.

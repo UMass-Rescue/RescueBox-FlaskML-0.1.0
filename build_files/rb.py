@@ -1,4 +1,8 @@
+# Copyright (c) 2024 RescueBox authors   
+# This file is part of RescueBox.
 
+# RescueBox is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
+# as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 import os, psutil, sys
 from taskkill import taskkill_force_pid_children ,taskkill_regex_rearch
 import argparse
