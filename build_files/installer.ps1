@@ -1,3 +1,9 @@
+# Copyright (c) 2024 RescueBox authors   
+# This file is part of RescueBox.
+
+# RescueBox is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
+# as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
 # powershell install python and download source to RB_HOME folder
 # start pipenv virtualenv and flask ml server per plugin
 # powershell -noexit -ExecutionPolicy Bypass -File installer.ps1
@@ -193,7 +199,7 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
       $pids += $e.trim()
     }
   }
-  if $pids.Length == 4 {
+  if ($pids.Length == 4 ) {
     Write-Output "Expected 4 of 4 servers started ok"
     Write-Output "PROGRESS 5 of 5"
     Write-Output "Post Installation completed successfullt"
