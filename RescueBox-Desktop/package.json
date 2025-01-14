@@ -297,6 +297,7 @@
     },
     "nsis": {
       "warningsAsErrors": false,
+      "differentialPackage": false,
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": false,
       "oneClick": false,

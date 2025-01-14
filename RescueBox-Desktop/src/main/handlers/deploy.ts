@@ -7,23 +7,27 @@ import { showNotification } from '../util';
 
 const getDeploy = async (_event: any, arg: any) => {
   try {
-    const pidsPath = process.resourcesPath;
     let rbLogPath = RBServer.appath;
     // log.info('rbLog path', rbLogPath);
     if (!rbLogPath) {
       log.error('rbLog path not defined');
-      rbLogPath = path.join('.', 'logs', 'main.log');
+      rbLogPath = path.join('.', 'logs');
       return -1;
     }
-    const rbLog = path.join(rbLogPath, 'logs', 'main.log');
-    const pids = path.join(pidsPath, 'assets', 'rb_server', 'rb_process.txt');
+    const rbLog = path.join(rbLogPath, 'RescueBox-Desktop', 'logs', 'main.log');
+    const pids = path.join(
+      rbLogPath,
+      'RescueBox-Desktop',
+      'logs',
+      'rb_process.txt',
+    );
     // log.info(`rbLog file ${rbLog}`);
     // log.info(`pids file ${pids}`);
     if (fs.existsSync(pids)) {
       const lineArray = fs.readFileSync(pids).toString().split('\n');
       log.info(`progress found ${lineArray.length}`);
-      if (lineArray.length > 2) {
-        log.info('at least 1 model pid found');
+      if (lineArray.length > 3) {
+        log.info('at least 2 model pid found');
         showNotification(
           'In Progress',
           `Click Logs to view details.`,
@@ -67,8 +71,6 @@ const getDeploy = async (_event: any, arg: any) => {
 
 async function stopDeploy(_event: any, _arg: any) {
   log.info('stop deploy not implemented');
-  log.transports.file.getFile().clear();
-  log.create({ logId: 'main' });
   return true;
   // stop deploy
 }

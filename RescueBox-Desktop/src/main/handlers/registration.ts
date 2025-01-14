@@ -2,7 +2,8 @@
 import { ModelAppStatus } from 'src/shared/models';
 import log from 'electron-log/main';
 import { PythonShell } from 'python-shell';
-import YouTubePlayer from 'react-player/youtube';
+import fs from 'fs';
+import path from 'path';
 import ModelServer from '../models/model-server';
 import { getRaw } from '../util';
 import ModelAppService from '../services/model-app-service';
@@ -54,12 +55,17 @@ async function restartServer(port: string): Promise<boolean> {
   };
 
   try {
-    const script = 'rb.py';
-    log.info('py path %j', options.pythonPath);
-    log.info('call py script path %j', options.scriptPath);
-    const messages = await PythonShell.run(script, options);
-    // results is an array consisting of messages collected during execution
-    log.info('results: %j', messages);
+    const py = process.env.PY ? path.join(process.env.PY) : '';
+    const sc = process.env.RBPY ? path.join(process.env.RBPY) : '';
+    if (fs.existsSync(sc) && fs.existsSync(py)) {
+      const script = 'rb.py';
+      log.info('py path %j', options.pythonPath);
+      log.info('call py script path %j', options.scriptPath);
+      const messages = await PythonShell.run(script, options);
+      // results is an array consisting of messages collected during execution
+      log.info('results: %j', messages);
+      return true;
+    }
     return true;
   } catch (error) {
     log.error('Error running Python script:', error);

@@ -14,19 +14,20 @@ export default class RBServer {
   static async installRBserver(appPath: string): Promise<void> {
     try {
       RBServer.appath = appPath;
+      // "$env:APPDATA\RescueBox-Desktop\logs"
       const rbServerProcessInfo = path.join(
-        process.resourcesPath,
-        'assets',
-        'rb_server',
+        appPath,
+        'RescueBox-Desktop',
+        'logs',
         'rb_process.txt',
       );
       if (fs.existsSync(rbServerProcessInfo)) {
         info(
-          `Skip RescueBox Server Install. ${rbServerProcessInfo} are running perhaps`,
+          `Skip RescueBox Server Install. ${rbServerProcessInfo} found, Model Server running perhaps`,
         );
         return;
       }
-      info(`Powershell cwd ${appPath}`);
+      info(`Desktop app path for logs : ${appPath}`);
       const pathf = path.join(
         process.resourcesPath,
         'assets',

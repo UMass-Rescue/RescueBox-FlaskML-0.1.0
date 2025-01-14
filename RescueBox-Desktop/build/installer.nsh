@@ -5,11 +5,12 @@ Var VersionNumber
 
 
 Section
-SetDetailsPrint both
-InitPluginsDir
-StrCpy $VersionNumber "v1.0"
-MessageBox MB_OK "RescueBox $VersionNumber $INSTDIR"
-MessageBox MB_OK|MB_ICONINFORMATION "Copyright (R) ${COPYYEAR}"
+  SetDetailsPrint both
+  InitPluginsDir
+  StrCpy $VersionNumber "v1.0"
+  ExpandEnvStrings $0 %COMSPEC%
+  MessageBox MB_OK "RescueBox $VersionNumber $INSTDIR"
+  MessageBox MB_OK|MB_ICONINFORMATION "Copyright (R) ${COPYYEAR}"
 SectionEnd
 
 !macro customHeader
@@ -17,39 +18,38 @@ SectionEnd
 !macroend
 
 !macro customInstall
-  Var /GLOBAL INSTDIR_DATA
-  Strcpy "$INSTDIR_DATA"  "$INSTDIR"
-  ;ExecWait if needed
-  DetailPrint $INSTDIR_DATA
+     Strcpy "$INSTDIR_DAT" "$INSTDIR\resources\assets\rb_server"
 !macroend
 
 Section "Uninstall"
   Var /GLOBAL INSTDIR_DAT
-  Strcpy "$INSTDIR_DAT" "$LocalAppdata\Programs\RescueBox-Desktop\resources"
+  Strcpy "$INSTDIR_DAT" "$INSTDIR\resources\assets\rb_server"
 
   Var /GLOBAL PY_PATH
-  Strcpy "$PY_PATH" "$PROFILE\python311\python.exe"
+  Strcpy "$PY_PATH" "$INSTDIR_DAT\python311\python.exe"
+
   ExpandEnvStrings $0 %COMSPEC%
-  Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\assets\rb_server\rb.py"'
+  Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
 
   FindWindow $0 "RescueBox-Desktop"
   SendMessage $0 ${WM_CLOSE} 0 0
 
   ExpandEnvStrings $0 %COMSPEC%
-  Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop\locales"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.dll"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.pak"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.bin"'
-  Exec '"$0" /C del /q /f "$LocalAppdata\Programs\RescueBox-Desktop\*.json"'
+  Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
 
-  Exec '"$0" /C rmdir /s /q "$LocalAppdata\Programs\RescueBox-Desktop"'
+  ;Exec '"$0" /k "$INSTDIR_DAT\python-3.11.8-amd64.exe -ArgumentList /uninstall /quiet"'
+  ;Exec '"$0" /k "rmdir /S /Q $INSTDIR\resources'
 
 
+  ExpandEnvStrings $0 %COMSPEC%
+  Var /GLOBAL INSTDIR_LOG
+  Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
+  Exec '"$0" /C del /f /q $INSTDIR_LOG\*.*"'
 SectionEnd
 
 !macro customRemoveFiles
-  Var /GLOBAL INSTDIR_LOG
-  Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
-  Exec "del /f /q $INSTDIR_LOG\main.log"
+  ;Exec "del /f /q $INSTDIR_LOG\rb_process.txt"
+  ExpandEnvStrings $0 %COMSPEC%
+  Exec '"$0" /C rmdir /S /Q "$INSTDIR"'
 !macroend
 
