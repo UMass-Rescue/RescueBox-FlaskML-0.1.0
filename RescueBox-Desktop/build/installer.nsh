@@ -36,20 +36,15 @@ Section "Uninstall"
 
   ExpandEnvStrings $0 %COMSPEC%
   Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
-
-  ;Exec '"$0" /k "$INSTDIR_DAT\python-3.11.8-amd64.exe -ArgumentList /uninstall /quiet"'
-  ;Exec '"$0" /k "rmdir /S /Q $INSTDIR\resources'
-
+  Exec "del /f /q $INSTDIR_LOG\rb_process.txt"
 
   ExpandEnvStrings $0 %COMSPEC%
   Var /GLOBAL INSTDIR_LOG
   Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
-  Exec '"$0" /C del /f /q $INSTDIR_LOG\*.*"'
+  Exec "del /f /q $INSTDIR_LOG\*.*"
 SectionEnd
 
 !macro customRemoveFiles
-  ;Exec "del /f /q $INSTDIR_LOG\rb_process.txt"
-  ExpandEnvStrings $0 %COMSPEC%
-  Exec '"$0" /C rmdir /S /Q "$INSTDIR"'
+  ;Exec "rmdir /S /Q $INSTDIR"
 !macroend
 

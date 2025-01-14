@@ -18,8 +18,8 @@ export function resolveHtmlPath(htmlFileName: string) {
   );
   if (fs.existsSync(py)) {
     process.env.PY = py;
-    // %LOCALAPPDATA%\Programs\RescueBox-Desktop\
-    const sc = path.join(U, 'resources', 'assets', 'rb_server', 'rb.py');
+    // dir for script
+    const sc = path.join(U, 'resources', 'assets', 'rb_server');
     if (fs.existsSync(sc)) {
       process.env.RBPY = sc;
     } else {
