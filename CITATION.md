@@ -1,6 +1,6 @@
 Facial Recognition
-If you use deepface in your research for facial recogntion purposes, please cite these publications:
-
+If you use deepfake ImageViewer in your research for facial recogntion purposes, please cite these publications:
+```
 @article{serengil2024lightface,
   title         = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
   author        = {Serengil, Sefik Ilkin and Ozpinar, Alper},
@@ -13,7 +13,8 @@ If you use deepface in your research for facial recogntion purposes, please cite
   url           = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
   publisher     = {Gazi University}
 }
-
+```
+```
 @inproceedings{serengil2020lightface,
   title        = {LightFace: A Hybrid Deep Face Recognition Framework},
   author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
@@ -24,7 +25,8 @@ If you use deepface in your research for facial recogntion purposes, please cite
   url          = {https://ieeexplore.ieee.org/document/9259802},
   organization = {IEEE}
 }
-
+```
+```
 @inproceedings{serengil2021lightface,
   title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
   author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
@@ -35,7 +37,8 @@ If you use deepface in your research for facial recogntion purposes, please cite
   url          = {https://ieeexplore.ieee.org/document/9659697/},
   organization = {IEEE}
 }
-
+```
+```
 @misc{serengil2023db,
   title         = {An evaluation of sql and nosql databases for facial recognition pipelines},
   author        = {Serengil, Sefik Ilkin and Ozpinar, Alper},
@@ -44,7 +47,8 @@ If you use deepface in your research for facial recogntion purposes, please cite
   doi           = {10.33774/coe-2023-18rcn},
   url           = {https://www.cambridge.org/engage/coe/article-details/63f3e5541d2d184063d4f569}
 }
-
+```
+```
 @InProceedings{Lanzino_2024_CVPR,
     author    = {Lanzino, Romeo and Fontana, Federico and Diko, Anxhelo and Marini, Marco Raoul and Cinque, Luigi},
     title     = {Faster Than Lies: Real-time Deepfake Detection using Binary Neural Networks},
@@ -53,10 +57,12 @@ If you use deepface in your research for facial recogntion purposes, please cite
     year      = {2024},
     pages     = {3771-3780}
 }
-
+```
+```
 @article{guo2022join,
   title={Join the High Accuracy Club on ImageNet with A Binary Neural Network Ticket},
   author={Guo, Nianhui and Bethge, Joseph and Meinel, Christoph and Yang, Haojin},
   journal={arXiv preprint arXiv:2211.12933},
   year={2022}
 }
+```
