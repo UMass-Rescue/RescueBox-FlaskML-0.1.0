@@ -26,7 +26,11 @@ const getDeploy = async (_event: any, arg: any) => {
     if (fs.existsSync(pids)) {
       const lineArray = fs.readFileSync(pids).toString().split('\n');
       log.info(`progress found ${lineArray.length}`);
-      if (lineArray.length > 3) {
+      if (lineArray.length = 4) {
+        log.info('model pids found 3');
+        return 4;
+      }
+      if (lineArray.length > 4) {
         log.info('at least 2 model pid found');
         showNotification(
           'In Progress',
@@ -35,8 +39,9 @@ const getDeploy = async (_event: any, arg: any) => {
         );
         return 5;
       }
-      if (lineArray.length <= 2) {
+      if (lineArray.length == 2) {
         log.info('model pids found 0');
+        return 2;
       }
     }
     const lineArray = fs.readFileSync(rbLog).toString();

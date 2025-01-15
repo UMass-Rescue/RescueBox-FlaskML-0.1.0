@@ -101,6 +101,9 @@ class FaceMatchModel:
             if total_files_uploaded != total_files_read:
                 return f"An error occurred: {str(total_files_uploaded) + ' files uploaded'}"
 
+            if total_files_uploaded != total_files_read:
+                return f"An error occurred: {str(total_files_uploaded) + ' files uploaded'}"
+
             return (
                 "Successfully uploaded "
                 + str(total_files_uploaded)
@@ -163,7 +166,9 @@ class FaceMatchModel:
                                 database_path,
                                 threshold=threshold,
                             )
-                        matching_image_paths.extend(output)
+                        for element in output:
+                            if element not in matching_image_paths:
+                                matching_image_paths.append(element)
                     return True, matching_image_paths
                 else:
                     return False, "Error: Provided image does not have any face"

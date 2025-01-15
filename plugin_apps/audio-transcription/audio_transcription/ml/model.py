@@ -1,7 +1,18 @@
 from pathlib import Path
 
 import whisper
-
+import logging
+formatter = logging.Formatter(
+    "{asctime} - {levelname} - {message}",
+     style="{",
+     datefmt="%Y-%m-%d %H:%M", )
+logger = logging.getLogger(__name__)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+file_handler = logging.FileHandler("audio.log", mode="a", encoding="utf-8")
+file_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 
 class AudioTranscriptionModel:
     def __init__(self, model_path: str = "base"):
@@ -18,11 +29,14 @@ class AudioTranscriptionModel:
         for file_path in directory_path.rglob("*"):
             if file_path.suffix.lower() in self.audio_extensions:
                 audio_files.append(file_path)
+            else:
+                logging.error(f'audio_file {file_path} format not supported {file_path.suffix.lower()}')
 
         return audio_files
 
     def _validate_audio_path(self, audio_path: str) -> None:
         if audio_path is None:
+            logging.info(f'audio_path cannot be None')
             raise ValueError("audio_path cannot be None")
 
     def transcribe(self, audio_path: str, out_dir: str = None) -> str:
@@ -32,6 +46,8 @@ class AudioTranscriptionModel:
             self._write_res_to_dir(
                 [{"file_path": str(audio_path), "result": res}], out_dir
             )
+        else:
+            logging.info(f'audio out_dir not provided')
         return res
 
     def transcribe_batch(self, audio_paths: list[str]) -> list[dict]:

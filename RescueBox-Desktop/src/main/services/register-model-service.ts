@@ -18,14 +18,20 @@ type ModelMetadataError = { error: 'App metadata not set' };
 
 export default class RegisterModelService {
   static async registerModel(serverAddress: string, serverPort: number) {
-    const modelInfo = await RegisterModelService.getAppMetadata(
-      serverAddress,
-      serverPort,
-    );
-    const apiRoutes = await RegisterModelService.getAPIRoutes(
-      serverAddress,
-      serverPort,
-    );
+    let modelInfo;
+    let apiRoutes;
+    try {
+       modelInfo = await RegisterModelService.getAppMetadata(
+        serverAddress,
+        serverPort,
+      );
+       apiRoutes = await RegisterModelService.getAPIRoutes(
+        serverAddress,
+        serverPort,
+      );
+    } catch(error) {
+        throw new Error(`FATAL: Server error model ${serverAddress} ${serverPort}`);
+    }
     const prevModel = await MLModelDb.getModelByModelInfoAndRoutes(
       modelInfo,
       apiRoutes,
