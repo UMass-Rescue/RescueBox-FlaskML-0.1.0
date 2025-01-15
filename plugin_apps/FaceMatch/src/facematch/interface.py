@@ -23,7 +23,7 @@ class FaceMatchModel:
                 database_path = get_resource_path(config["database_path"])
             else:
                 database_path = get_resource_path(database_path)
-
+            
             log_info(database_path)
 
             # Get models from config file.
@@ -97,6 +97,9 @@ class FaceMatchModel:
                     + " files to "
                     + database_path
                 )
+            
+            if total_files_uploaded != total_files_read:
+                return f"An error occurred: {str(total_files_uploaded) + ' files uploaded'}"
 
             if total_files_uploaded != total_files_read:
                 return f"An error occurred: {str(total_files_uploaded) + ' files uploaded'}"

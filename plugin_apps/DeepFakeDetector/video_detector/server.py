@@ -36,6 +36,8 @@ server.add_app_metadata(
     info=load_file_as_string("app-info.md"),
 )
 
+
+server.endpoints
 def create_deepfake_detection_task_schema() -> TaskSchema:
     return TaskSchema(
         inputs=[
