@@ -90,15 +90,15 @@ const getModelAppStatus = async (
   const healthBool = await modelAppService.pingHealth();
   server.isUserConnected = healthBool;
   await server.save();
-  log.info(`App status is online ? ${healthBool}`);
   if (!healthBool) {
     // restart service
+    log.info(`App status is online ? ${healthBool}`);
     const port = modelAppService.getAppServerPort();
-    const res = await port.then((result) => result.toString());
-    log.info(`App status offline on port ${res}`);
-    const rc = restartServer(res);
-    const rce = await port.then((result) => result.toString());
-    log.info(`App restart rc for port ${res} ${rce}`);
+    const portString = await port.then((result) => result.toString());
+    log.info(`App status offline on port ${portString}`);
+    const rc = restartServer(portString);
+    const rcp = await rc.then((result) => result.toString());
+    log.info(`App restart rc for port ${portString} ${rcp}`);
   }
   return healthBool ? ModelAppStatus.Online : ModelAppStatus.Offline;
 };

@@ -7,6 +7,8 @@ plugin_apps/DeepFakeDetector/video_detector/weights/*
 plugin_apps/FaceMatch/.deepface/weights/*
 plugin_apps/FaceMatch/.deepface/weights/yolov8n-face.pt
 plugin_apps/FaceMatch/.deepface/weights/arcface_weights.h5
+plugin_apps/DeepFakeDetector/image_model/binary_deepfake_detection/weights/*
+plugin_apps/DeepFakeDetector/image_model/binary_deepfake_detection/pretrained/*
 *.pdf
 *.zip
 saved/**

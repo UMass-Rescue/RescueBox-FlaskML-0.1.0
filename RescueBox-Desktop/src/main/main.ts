@@ -237,7 +237,7 @@ app
 
       const cwd = app.getPath('appData');
       RBServer.appath = cwd;
-      log.info('Run powershell script to install Model Servers..');
+      log.info(`Run powershell to install Model Servers from ${cwd}`);
       await RBServer.installRBserver(cwd);
 
       createWindow();

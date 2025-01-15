@@ -10,6 +10,15 @@ RBLOG= os.path.join(os.environ['APPDATA'], 'RescueBox-Desktop', 'logs')
 RBLOG_FILE = os.path.join(RBLOG, 'rb_starter.log')
 logging.basicConfig(filename=RBLOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# change this to roaming logs ????
+# C:\Users\foth2\AppData\Local\Programs\RescueBox-Desktop\resources\assets\rb_server
+RBHOME= os.path.join(os.environ['LOCALAPPDATA'], "programs", "RescueBox-Desktop","resources", "assets", "rb_server")
+if not os.path.exists(RBHOME):
+  RBHOME = "."
+if not os.path.exists(os.path.join(RBHOME, "plugin_apps")):
+  logging.info(f"RBHOME plugin_apps not found  {RBHOME}")
+  # dont exit kill server is they are running during uninstall
+
 logging.info('This is rb start/stop utility ')
 parser = argparse.ArgumentParser(description="Run a server.")
 parser.add_argument(
@@ -68,13 +77,6 @@ def create_new_pids(new_pid):
     with open(procfile, 'w') as file:
             file.writelines(out_lines)
 
-# change this to roaming logs ????
-# C:\Users\foth2\AppData\Local\Programs\RescueBox-Desktop\resources\assets\rb_server
-RBHOME= os.path.join(os.environ['LOCALAPPDATA'], "programs", "RescueBox-Desktop","resources", "assets", "rb_server")
-if not os.path.exists(RBHOME):
-  RBHOME = "."
-if not os.path.exists(os.path.join(RBHOME, "plugin_apps")):
-  logging.info(f"RBHOME plugin_apps not found  {RBHOME}")
 
 def stop_existing_pids(stop_pid):
   for proc in psutil.process_iter(['pid', 'name']):
