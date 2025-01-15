@@ -17,7 +17,7 @@ For a review of the project's goals, read [What is RescueBox Desktop?](./docs/wh
 
 ## Step 1: Download the Latest Release for Windows 10 or 11 Only deployment.
 
-Get the latest release of the binary for your operating system (Windows, macOS and Linux) from the [release page](https://github.com/UMass-Rescue/RescueBox-Desktop/releases). For Linux, see [Additional Instructions for Linux](#additional-instructions-for-linux).
+Get the latest release of the binary for your operating system (Windows) from the [release page](https://github.com/UMass-Rescue/RescueBox-Desktop/releases). For Linux, see [Additional Instructions for Linux](#additional-instructions-for-linux).
 
 ## Step 2: Deploy the RescueBox Download
 
