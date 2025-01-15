@@ -1,3 +1,9 @@
+# Copyright (c) 2024 RescueBox authors   
+# This file is part of RescueBox.
+
+# RescueBox is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
+# as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
 # powershell install python and download source to RB_HOME folder
 # start pipenv virtualenv and flask ml server per plugin
 # powershell -noexit -ExecutionPolicy Bypass -File installer.ps1
@@ -27,6 +33,7 @@ $RB_PYTHON="$RB_HOME\$PYTHON_VERSION"
 if (Test-Path -Path "$RB_LOG\rb_process.txt, $RB_HOME\plugin_apps\audio-transcription") {
   if (Test-Path -Path "$RB_PYTHON, $RB_PYTHON\scripts\pipenv.exe") {
     $SKIP_PYTHON_INSTALL=$true
+    Remove-Item "$RB_LOG\* -Recurse -Force"
   }
 } else {
   $SKIP_PYTHON_INSTALL=$false
@@ -57,12 +64,12 @@ if (!$SKIP_PYTHON_INSTALL) {
      Write-Output "Pre existing Python 3.11 found"
   } else {
     New-Item "$RB_PYTHON" -ItemType Directory -ea 0
-    Write-Output "No pre existing Python 3.11 for RB found, proceed to install in $RB_PYTHON"
+    Write-Output "Python 3.11 for RB not found, proceed to install in $RB_PYTHON"
   }
   # do this cleanup anyway in the case when install was done with HOME=A and then again with HOME=B
-  Write-Output "Pre existing Python repair"
+  Write-Output "Pre existing Python repair anyway!"
   Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/repair /quiet PrependPath=0" -Wait
-  Write-Output "Pre existing Python uninstall"
+  Write-Output "Pre existing Python uninstall in case its left over from previous attempt"
   Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/uninstall /quiet" -Wait
 
   Write-Output "PROGRESS 2 of 5"
@@ -171,10 +178,11 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
 
   $i=$img.split([Environment]::NewLine)
   foreach ($e in $i) {
-    if ($e.trim() -notin $pids) {
-      Write-Output "pid is dfImage=$e.trim()"
-      "dfImage=$e.trim()" | Out-File  $RB_LOG\rb_process.txt -Append
-      $pids +=$e.trim()
+    $et=$e.trim()
+    if ($et -and $et -notin $pids) {
+      Write-Output "pid is dfImage=$et"
+      "dfImage=$et" | Out-File  $RB_LOG\rb_process.txt -Append
+      $pids +=$et
     }
   }
 
@@ -187,13 +195,14 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
 
   $v=$vid.split([Environment]::NewLine)
   foreach ($e in $v) {
-    if ($e.trim() -notin $pids) {
-      Write-Output "pid is dfVideo=$e.trim()"
-      "dfVideo=$e.trim()" | Out-File  $RB_LOG\rb_process.txt -Append
-      $pids += $e.trim()
+    $et=$e.trim()
+    if  ($et -notin $pids -and $et) {
+      Write-Output "pid is dfVideo=$et"
+      "dfVideo=$et" | Out-File  $RB_LOG\rb_process.txt -Append
+      $pids += $et
     }
   }
-  if $pids.Length == 4 {
+  if ($pids.Length == 4 ) {
     Write-Output "Expected 4 of 4 servers started ok"
     Write-Output "PROGRESS 5 of 5"
     Write-Output "Post Installation completed successfullt"
