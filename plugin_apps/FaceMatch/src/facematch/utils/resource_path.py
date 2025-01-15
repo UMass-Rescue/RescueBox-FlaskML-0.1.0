@@ -18,11 +18,8 @@ os.makedirs(DATA_DIR, exist_ok=True)
 def get_resource_path(filename):
     DIR = os.path.join(DATA_DIR, os.path.dirname(filename))
     os.makedirs(DIR, exist_ok=True)
-<<<<<<< HEAD
-=======
     log_info("debug resource path dir")
     log_info(DIR)
->>>>>>> main
     return os.path.join(DATA_DIR, filename)
 
 
@@ -30,8 +27,5 @@ def get_config_path(filename):
     p = os.path.join(module_dir, os.pardir)
     if getattr(sys, 'frozen', False):
         p = "."
-<<<<<<< HEAD
-=======
     log_info(filename)
->>>>>>> main
     return os.path.join(p, "config", filename)
