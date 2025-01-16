@@ -1,7 +1,7 @@
-# Copyright (c) 2024 RescueBox authors   
+# Copyright (c) 2024 RescueBox authors
 # This file is part of RescueBox.
 
-# RescueBox is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
+# RescueBox is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 # powershell install python and download source to RB_HOME folder
@@ -57,7 +57,7 @@ if (!$SKIP_PYTHON_INSTALL) {
   # remember existing path
   $PATH=$env:Path
 
-  # temporary change path 
+  # temporary change path
   $env:Path= $RB_PYTHON
   # if folder [$RB_PYTHON]  exists uninstall python
   if (Test-Path -Path $RB_PYTHON) {
@@ -135,7 +135,7 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
   # Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --rm >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
   Start-Process -FilePath "cmd.exe" -ArgumentList "/c $RB_PYTHON\scripts\pipenv.exe --python  $RB_PYTHON\python.exe sync >> $RB_LOG\rb_py.log 2>> $RB_LOG\rb_py_err.log" -NoNewWindow -Wait
   # copy weights , other pre-reqs to prevent download
-  
+
   Copy-Item -Path "$RB_HOME\plugin_apps\audio-transcription\.cache" -Destination "$env:USERPROFILE" -Recurse -ea 0
   Copy-Item -Path "$RB_HOME\plugin_apps\FaceMatch\.deepface" -Destination "$env:USERPROFILE" -Recurse -ea 0
   Copy-Item -Path "$RB_HOME\plugin_apps\DeepFakeDetector\image_model\binary_deepfake_detection\weights" -Destination "$env:USERPROFILE\.deepface" -Recurse -ea 0
@@ -158,7 +158,7 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
     }
   }
   Write-Output "face pid is f=$f"
-  Write-Output "all pid is $pids"
+  Write-Output "both pid are $pids"
   Write-Output "PROGRESS 4 of 5"
   #$DownloadURL = "https://umass-my.sharepoint.com/:u:/r/personal/jaikumar_umass_edu/Documents/yolov8n-face.pt?csf=1&web=1&e=IEEIKB"
   #$DownloadURL = "https://umass-my.sharepoint.com/:u:/r/personal/jaikumar_umass_edu/Documents/dffd_M_unfrozen.ckpt?csf=1&web=1&e=FULPVd"
@@ -202,7 +202,9 @@ if (Get-Command 'python.exe' -ErrorAction SilentlyContinue){
       $pids += $et
     }
   }
-  if ($pids.Length == 4 ) {
+  # sleep for a little to allow servers to start , better would be to make a call to rest-api.
+  Start-Sleep -Seconds 30
+  if ($pids.Length -eq 4 ) {
     Write-Output "Expected 4 of 4 servers started ok"
     Write-Output "PROGRESS 5 of 5"
     Write-Output "Post Installation completed successfullt"
