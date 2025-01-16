@@ -27,12 +27,12 @@ const getDeploy = async (_event: any, arg: any) => {
       const lineArray = fs.readFileSync(pids).toString().split('\n');
       log.info(`progress found ${lineArray.length}`);
 
-      if (lineArray.length > 2) {
-        log.info('at least 1 model pid found');
+      if (lineArray.length > 5) {
+        log.info('at least 4 servers found running');
         return 5;
       }
       if (lineArray.length == 2) {
-        log.info('model pids found 0');
+        log.info('one server running ok');
         return 2;
       }
     }

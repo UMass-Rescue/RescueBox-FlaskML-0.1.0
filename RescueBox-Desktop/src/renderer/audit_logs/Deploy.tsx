@@ -25,7 +25,6 @@ function Deploy() {
   if (error) return <div>Error: {error.message}</div>;
   if (!progress) return <LoadingScreen />;
   if (progress <= 0) return <div>Deploy failed</div>;
-  // if (COMPLETE === 100) return <div>Model Server Started OK</div>;
 
   const handleRefresh = async (): Promise<void> => {
     // await window.logging.clearLogs();
