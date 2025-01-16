@@ -239,7 +239,6 @@
     "productName": "RescueBox-Desktop",
     "appId": "org.UMass-Rescue.RescueBox-Desktop",
     "asar": true,
-    "compression": "store",
     "asarUnpack": [
       "**\\*.{node,dll}",
       "./assets/**/*",

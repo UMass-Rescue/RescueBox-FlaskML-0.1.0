@@ -155,6 +155,12 @@ const electronAPIHandler = {
   offNavigate: () => ipcRenderer.removeAllListeners('navigate-to'),
 };
 
+const serverStatusHandler = {
+  setGlobalVariable: (key: any, value: any) => ipcRenderer.invoke('set-global-variable', key, value),
+  getGlobalVariable: (key: any) => (global as any)[key]
+};
+
+contextBridge.exposeInMainWorld('serverStatus', serverStatusHandler);
 contextBridge.exposeInMainWorld('registration', registrationHandler);
 contextBridge.exposeInMainWorld('models', modelsHandler);
 contextBridge.exposeInMainWorld('job', jobHandler);
@@ -174,3 +180,4 @@ export type LoggingHandler = typeof loggingHandler;
 export type DeployHandler = typeof deployHandler;
 export type TaskHandler = typeof taskHandler;
 export type ElectronAPIHandler = typeof electronAPIHandler;
+export type ServerStatusHandler = typeof serverStatusHandler;

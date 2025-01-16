@@ -25,10 +25,15 @@ import * as deployHandler from './handlers/deploy';
 import * as taskHandler from './handlers/task';
 import DatabaseConn, { getDbPath } from './database/database-conn';
 import RBServer from './rbserver';
+import RegisterModelService from './services/register-model-service';
 
 // It preloads electron-log IPC code in renderer processes
 const mlog = log.create({ logId: 'main' });
 log.initialize();
+
+export const global = {
+  progress: 0
+}
 
 class AppUpdater {
   constructor() {
@@ -109,6 +114,31 @@ function setupIpcMain() {
     'task:get-task-by-model-uid-and-task-id',
     taskHandler.getTaskByModelUidAndTaskId,
   );
+  ipcMain.handle('set-global-variable', (event, key, value) => {
+    (global as any)[key] = value;
+    registerServers(key,value);
+  });
+}
+
+const registerServers = async (key: string, value: boolean) => {
+  try {
+      log.info(`in call to registerserver with ${key}, [${value}]`);
+      if ( key.includes('serverReady') && value) {
+
+        const ports = ["5000", "5005", "5010", "5020"];
+        const serverAddress = '127.0.0.1';
+        for (var i=0; i < ports.length; i++) {
+          log.info(`registration call for port ${ports[i]}`);
+          const mdb = RegisterModelService.registerModel(
+            serverAddress, Number(ports[i]),
+          );
+          (await mdb).serverAddress
+          log.info(`return from registration isUserConnected= ${(await mdb).isUserConnected}`);
+        }
+      };
+    } catch (error) {
+      console.log(error);
+    }
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -238,7 +268,9 @@ app
       const cwd = app.getPath('appData');
       RBServer.appath = cwd;
       log.info(`Run powershell to install Model Servers from ${cwd}`);
+
       await RBServer.installRBserver(cwd);
+      // window.serverStatus.setGlobalVariable('myGlobal', 'Begin from main process!');
 
       createWindow();
       app.on('activate', () => {

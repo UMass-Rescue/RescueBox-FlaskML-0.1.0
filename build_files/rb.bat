@@ -2,6 +2,8 @@
 # cd RescueBox-FlaskML-0.1.0\RescueBox-Desktop
 
 cd ..\RescueBox-Desktop
+cmd /c npm cache clean --force
+cmd /c npm cache verify
 cmd /c npm install
 cmd /c npm run postinstall
 cmd /c npm run build
