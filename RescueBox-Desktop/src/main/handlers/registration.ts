@@ -2,10 +2,9 @@
 import { ModelAppStatus } from 'src/shared/models';
 import log from 'electron-log/main';
 import { PythonShell } from 'python-shell';
-import fs from 'fs';
 import path from 'path';
 import ModelServer from '../models/model-server';
-import { getRaw } from '../util';
+import { getRaw, resolvePyPath } from '../util';
 import ModelAppService from '../services/model-app-service';
 import RegisterModelService from '../services/register-model-service';
 
@@ -46,6 +45,7 @@ const getModelServer = async (event: any, arg: GetModelServerArgs) => {
 };
 
 async function restartServer(port: string): Promise<boolean> {
+  const script = 'rb.py';
   const options = {
     mode: 'text' as 'text',
     pythonPath: process.env.PY,
@@ -57,15 +57,10 @@ async function restartServer(port: string): Promise<boolean> {
   try {
     const py = process.env.PY ? path.join(process.env.PY) : '';
     const sc = process.env.RBPY ? path.join(process.env.RBPY) : '';
-    if (fs.existsSync(sc) && fs.existsSync(py)) {
-      const script = 'rb.py';
-      log.info('py path %j', options.pythonPath);
-      log.info('call py script path %j', options.scriptPath);
-      const messages = await PythonShell.run(script, options);
-      // results is an array consisting of messages collected during execution
-      log.info('results: %j', messages);
-      return true;
-    }
+    log.info(`call restart server rb.py on ${port}`);
+    const messages = await PythonShell.run(script, options);
+    // results is an array consisting of messages collected during execution
+    log.info('results: %j', messages);
     return true;
   } catch (error) {
     log.error('Error running Python script:', error);
@@ -87,18 +82,23 @@ const getModelAppStatus = async (
     return ModelAppStatus.Unregistered;
   }
   const modelAppService = await ModelAppService.init(arg.modelUid);
-  const healthBool = await modelAppService.pingHealth();
-  server.isUserConnected = healthBool;
-  await server.save();
-  if (!healthBool) {
-    // restart service
-    log.info(`App status is online ? ${healthBool}`);
+  const pyFound = resolvePyPath();
+  if (pyFound) {
+    // await server.save();
+    // restart service with python script utility
     const port = modelAppService.getAppServerPort();
     const portString = await port.then((result) => result.toString());
-    log.info(`App status offline on port ${portString}`);
-    const rc = restartServer(portString);
-    const rcp = await rc.then((result) => result.toString());
-    log.info(`App restart rc for port ${portString} ${rcp}`);
+    log.info(`ping status check on port ${portString}`);
+    // const rc = restartServer(portString);
+    // const rcp = await rc.then((result) => result.toString());
+    // log.info(`After ping rc for port ${portString} ${rcp}`);
+  }
+  let healthBool = false;
+  try {
+    healthBool = await modelAppService.pingHealth();
+    server.isUserConnected = healthBool;
+  } catch (error) {
+    healthBool = false;
   }
   return healthBool ? ModelAppStatus.Online : ModelAppStatus.Offline;
 };

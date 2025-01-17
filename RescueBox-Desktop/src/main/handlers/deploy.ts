@@ -31,9 +31,10 @@ const getDeploy = async (_event: any, arg: any) => {
         log.info('at least 4 servers found running');
         return 5;
       }
-      if (lineArray.length == 2) {
+      // eslint-disable-next-line eqeqeq
+      if (lineArray.length > 1) {
         log.info('one server running ok');
-        return 2;
+        return 5;
       }
     }
     const lineArray = fs.readFileSync(rbLog).toString();

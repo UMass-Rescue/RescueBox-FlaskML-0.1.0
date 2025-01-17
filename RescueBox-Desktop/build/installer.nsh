@@ -32,16 +32,17 @@ Section "Uninstall"
   Strcpy "$PY_PATH" "$INSTDIR_DAT\python311\python.exe"
 
   ExpandEnvStrings $0 %COMSPEC%
-  ExecWait '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
+  ExecWait '"$0" "$PY_PATH $INSTDIR_DAT\rb.py"'
 
   FindWindow $0 "RescueBox-Desktop"
   SendMessage $0 ${WM_CLOSE} 0 0
 
-  ExecWait '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
-  ExecWait '"$0" /k "del/f /q $INSTDIR_LOG\*.log"'
+  ExecWait '"$0" "$PY_PATH $INSTDIR_DAT\rb.py"'
+  ExecWait '"$0" /c "$INSTDIR_DAT\python-3.11.8-amd64.exe /quiet /uninstall"'
 
-  ExecWait '"$0" /K "$INSTDIR_DAT\python-3.11.8-amd64.exe /uninstall"'
-  ExecWait '"$0" /K "rmdir /S /Q $INSTDIR"'
+  ExecWait '"$"0" "cd $INSTDIR_LOG && del /f /q $INSTDIR_LOG\*.log"'
+
+  ExecWait '"$0" /c "rmdir /S /Q $INSTDIR"'
 
 SectionEnd
 

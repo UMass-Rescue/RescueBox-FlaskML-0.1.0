@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { useState } from 'react';
+import log from 'electron-log';
 import { useDeploy } from '../lib/hooks';
 import { Button } from '../components/ui/button';
 import { DyProgressBar } from '../components/custom_ui/customButtons';
 import GreenRunIcon from '../components/icons/GreenRunIcon';
 import LoadingScreen from '../components/LoadingScreen';
-import log from 'electron-log';
 
-
-let COMPLETE = 0;
+// let COMPLETE = 0;
 
 function Deploy() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -33,13 +32,12 @@ function Deploy() {
   };
 
   if (currentStep === tSteps) {
-    COMPLETE = 100;
+    // COMPLETE = 100;
     log.info('Proceed to auto register servers on startup !');
     try {
       window.serverStatus.setGlobalVariable('serverReady', true);
-    }
-    catch (error) {
-      log.info(error);
+    } catch (errord) {
+      log.info(errord);
     }
     return (
       // eslint-disable-next-line react/style-prop-object

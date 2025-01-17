@@ -156,8 +156,9 @@ const electronAPIHandler = {
 };
 
 const serverStatusHandler = {
-  setGlobalVariable: (key: any, value: any) => ipcRenderer.invoke('set-global-variable', key, value),
-  getGlobalVariable: (key: any) => (global as any)[key]
+  setGlobalVariable: (key: any, value: any) =>
+    ipcRenderer.invoke('set-global-variable', key, value),
+  getGlobalVariable: (key: any) => (global as any)[key],
 };
 
 contextBridge.exposeInMainWorld('serverStatus', serverStatusHandler);

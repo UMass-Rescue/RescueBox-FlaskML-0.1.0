@@ -31,10 +31,6 @@ import RegisterModelService from './services/register-model-service';
 const mlog = log.create({ logId: 'main' });
 log.initialize();
 
-export const global = {
-  progress: 0
-}
-
 class AppUpdater {
   constructor() {
     mlog.transports.file.level = 'info';
@@ -44,6 +40,30 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+const registerServers = async (key: string, value: boolean) => {
+  try {
+    log.info(`in call to registerserver with ${key}, [${value}]`);
+    if (key.includes('serverReady') && value) {
+      // const ports = ['5000', '5005', '5010', '5020'];
+      const ports = ['5020'];
+      const serverAddress = '127.0.0.1';
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < ports.length; i++) {
+        log.info(`registration call for port ${ports[i]}`);
+        const mdb = RegisterModelService.registerModel(
+          serverAddress,
+          Number(ports[i]),
+        );
+        // eslint-disable-next-line no-unused-expressions, no-await-in-loop
+        const foo = (await mdb).serverAddress;
+        log.info(`return from registration isUserConnected= ${foo}`);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 // IPCMain Setup
 
@@ -116,29 +136,8 @@ function setupIpcMain() {
   );
   ipcMain.handle('set-global-variable', (event, key, value) => {
     (global as any)[key] = value;
-    registerServers(key,value);
+    registerServers(key, value);
   });
-}
-
-const registerServers = async (key: string, value: boolean) => {
-  try {
-      log.info(`in call to registerserver with ${key}, [${value}]`);
-      if ( key.includes('serverReady') && value) {
-
-        const ports = ["5000", "5005", "5010", "5020"];
-        const serverAddress = '127.0.0.1';
-        for (var i=0; i < ports.length; i++) {
-          log.info(`registration call for port ${ports[i]}`);
-          const mdb = RegisterModelService.registerModel(
-            serverAddress, Number(ports[i]),
-          );
-          (await mdb).serverAddress
-          log.info(`return from registration isUserConnected= ${(await mdb).isUserConnected}`);
-        }
-      };
-    } catch (error) {
-      console.log(error);
-    }
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -237,10 +236,12 @@ const createWindow = async () => {
  * Add event listeners...
  */
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== 'darwin') {
+    const rc = await RegisterModelService.stopAllServers(RBServer.appath);
+    log.info('Stop servers Python script rc:', rc.toString());
     app.quit();
   }
 });
