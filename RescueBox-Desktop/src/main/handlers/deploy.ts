@@ -4,6 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import RBServer from '../rbserver';
 import { showNotification } from '../util';
+import RegisterModelService from '../services/register-model-service';
+import ModelServer from '../models/model-server';
 
 const getDeploy = async (_event: any, arg: any) => {
   try {
@@ -60,6 +62,14 @@ const getDeploy = async (_event: any, arg: any) => {
       return 1;
     }
     log.info('progress not found');
+    // check if already deployed and running and log entries is not available
+    const servers = await ModelServer.getAllServers();
+    if (servers && servers?.length > 3) {
+      for (const s of servers) {
+        log.info(`found Server: ${s.modelUid}, Address: ${s.serverAddress}, Port: ${s.serverPort}`);
+      }
+      return 5;
+    }
     return 0;
   } catch (error) {
     log.error(error);

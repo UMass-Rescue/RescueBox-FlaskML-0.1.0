@@ -3,6 +3,9 @@
 
 Var VersionNumber
 
+!macro customInit
+  Delete "$INSTDIR\Uninstall*.exe"
+!macroend
 
 Section
   SetDetailsPrint both
@@ -12,14 +15,6 @@ Section
   MessageBox MB_OK "RescueBox $VersionNumber $INSTDIR"
   MessageBox MB_OK|MB_ICONINFORMATION "Copyright (R) ${COPYYEAR}"
 SectionEnd
-
-!macro customHeader
-    RequestExecutionLevel admin
-!macroend
-
-!macro customInstall
-     Strcpy "$INSTDIR_DAT" "$INSTDIR\resources\assets\rb_server"
-!macroend
 
 Section "Uninstall"
   Var /GLOBAL INSTDIR_LOG
@@ -32,17 +27,17 @@ Section "Uninstall"
   Strcpy "$PY_PATH" "$INSTDIR_DAT\python311\python.exe"
 
   ExpandEnvStrings $0 %COMSPEC%
-  ExecWait '"$0" "$PY_PATH $INSTDIR_DAT\rb.py"'
+  ;ExecWait '"$0" "$PY_PATH $INSTDIR_DAT\rb.py"'
 
   FindWindow $0 "RescueBox-Desktop"
   SendMessage $0 ${WM_CLOSE} 0 0
 
-  ExecWait '"$0" "$PY_PATH $INSTDIR_DAT\rb.py"'
-  ExecWait '"$0" /c "$INSTDIR_DAT\python-3.11.8-amd64.exe /quiet /uninstall"'
+  ;ExecWait '"$0" "$PY_PATH $INSTDIR_DAT\rb.py"'
+  ;Exec '"$0" /c "$INSTDIR_DAT\python-3.11.8-amd64.exe /quiet /uninstall"'
 
-  ExecWait '"$"0" "cd $INSTDIR_LOG && del /f /q $INSTDIR_LOG\*.log"'
+  ;Exec '"$"0" "del /f /q $INSTDIR_LOG\*.*"'
 
-  ExecWait '"$0" /c "rmdir /S /Q $INSTDIR"'
+  Exec '"$0" /c "rmdir /S /Q $INSTDIR"'
 
 SectionEnd
 

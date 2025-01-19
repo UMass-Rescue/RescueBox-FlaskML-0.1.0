@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { PythonShell } from 'python-shell';
 import * as registration from './handlers/registration';
+import RegisterModelService from './services/register-model-service';
 
 const pluginPath = path.join(
   process.resourcesPath,
@@ -49,6 +50,7 @@ export default class RBServer {
     try {
       RBServer.appath = appPath;
       // "$env:APPDATA\RescueBox-Desktop\logs"
+      let SKIP_INSTALL = false;
       if (
         // plugin app is installed
         fs.existsSync(audio) &&
@@ -69,28 +71,40 @@ export default class RBServer {
           info(
             'install already executed because server paths and registration found',
           );
-          return;
+          SKIP_INSTALL = true;
         }
       }
-      const pythonPath = path.join(
+      const pyPath = path.join(
         process.resourcesPath,
         'assets',
         'rb_server',
         'python311',
         'python.exe',
       );
+      const pscriptPath = path.join(
+        process.resourcesPath,
+        'assets',
+        'rb_server',
+      );
       const script = 'rb.py';
-      if (fs.existsSync(pythonPath)) {
+      if (fs.existsSync(pyPath)) {
         const options = {
           mode: 'text' as 'text',
-          pythonPath: process.env.PY,
+          pythonPath: pyPath,
           pythonOptions: [], // get print results in real-time
-          scriptPath: process.env.RBPY,
-          args: ['-h'],
+          scriptPath: pscriptPath,
+          args: [],
         };
         try {
+          // kill any servers on restart + confirm python works
           const messages = await PythonShell.run(script, options);
           info('results: %j', messages);
+          info(
+            `** Found python is installed and registration found ${SKIP_INSTALL} **`,
+          );
+          // register on startup else nodel-not-available
+          RBServer.registerServers('serverReady', true);
+          // if (SKIP_INSTALL) return;
           return;
         } catch (perror) {
           error('Error running Python script:', perror);
@@ -131,10 +145,105 @@ export default class RBServer {
 
       child.on('close', (code: any) => {
         info(`RescueBox Installed Ok, exit=${code}.Proceed to register models`);
+        RBServer.registerServers('serverReady', true);
       });
     } catch (err: any) {
       info(err);
       error('Failed to exec powershell', err);
     }
   }
+
+  static registerServers = async (key: string, value: boolean) => {
+    try {
+      info(`in call to registerserver with ${key}, [${value}]`);
+      if (key.includes('serverReady') && value) {
+        // const ports = ['5000', '5005', '5010', '5020'];
+        const ports = ['5020'];
+        const serverAddress = '127.0.0.1';
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0; i < ports.length; i++) {
+          info(`registration call for port ${ports[i]}`);
+          const mdb = RegisterModelService.registerModel(
+            serverAddress,
+            Number(ports[i]),
+          );
+          // eslint-disable-next-line no-unused-expressions, no-await-in-loop
+          const foo = (await mdb).serverAddress;
+          info(`return from registration isUserConnected= ${foo}`);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  static async stopAllServers(appPath: string): Promise<boolean> {
+    info('stop all servers');
+    const script = 'rb.py';
+    const options = {
+      mode: 'text' as 'text',
+      pythonPath: process.env.PY,
+      pythonOptions: [], // get print results in real-time
+      scriptPath: process.env.RBPY,
+      args: [],
+    };
+    const pids = path.join(
+      appPath,
+      'RescueBox-Desktop',
+      'logs',
+      'rb_process.txt',
+    );
+    try {
+      info('run stop using : %j', process.env.PY);
+      info('run rb.py at : %j', process.env.RBPY);
+      info(`call stop server rb.py`);
+      const messages = await PythonShell.run(script, options);
+      // results is an array consisting of messages collected during execution
+      info('results: %j', messages);
+      if (fs.existsSync(pids)) {
+        fs.rm(pids, { force: true }, (err) => {
+          if (err) {
+            error('Error removing file:', err);
+          }
+        });
+      }
+      info('stop servers completed');
+      return true;
+    } catch (err) {
+        error('Error running Python script: %s', err);
+      return false;
+    }
+  }
+
+  static async restartServer(port: number): Promise<boolean> {
+    const script = 'rb.py';
+    const pydir = process.env.PY ? path.join(process.env.PY) : '';
+    const pypath = process.env.RBPY ? path.join(process.env.RBPY, 'rb.py') : '';
+    if (!fs.existsSync(pydir) || !fs.existsSync(pypath)) {
+      info(
+        `** skip restart for pre existing server on ${port} found in db. reason: fresh install **`,
+      );
+      return false;
+    }
+    const options = {
+      mode: 'text' as 'text',
+      pythonPath: process.env.PY,
+      pythonOptions: [], // get print results in real-time
+      scriptPath: process.env.RBPY,
+      args: ['--port', `${port}`],
+    };
+    try {
+      const py = process.env.PY ? path.join(process.env.PY) : '';
+      const sc = process.env.RBPY ? path.join(process.env.RBPY) : '';
+      info(`call registration restart server rb.py on ${port}`);
+      const messages = await PythonShell.run(script, options);
+      // results is an array consisting of messages collected during execution
+      info('server start output: %j', messages);
+      return true;
+    } catch (error) {
+      // log.error('Error running Python script:', error);
+      return false;
+    }
+  }
+
 }

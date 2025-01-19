@@ -1,6 +1,7 @@
 """Module to start stop backend services."""
 import argparse
 import os
+import sys
 import logging
 from pathlib import Path
 import subprocess
@@ -46,14 +47,20 @@ def delete_all_pids() -> None:
       title=".*",
       windowtext=".*",
       class_name=".*",
-      path="pipenv.exe$",
+      path="pipenv.*$",
     )
-    logging.info(f'RB model Server killed ok {results}')
+    logging.info("RB model Server killed ok %s", results)
     for proc in psutil.process_iter():
           # print(f'found {str(proc.name), str(proc.pid) }')
-          if proc.name() == "pipenv.exe" or proc.name() == "python.exe" :
+          if proc.name() == "pipenv.exe" :
+            children = proc.children(recursive=True)
+            for child in children:
+                try:
+                  child.kill()
+                except psutil.NoSuchProcess:
+                  pass  # Child process already gone
             proc.kill()
-            logging.info(f'RB model Server killed ok')
+            logging.info("RB model Server killed ok with cmdline %s",proc.name())
 
 def stop_existing_pids(spid):
     """kill existing pipenv.exe proc"""
@@ -104,22 +111,24 @@ def check_server_ok(port, retry,delay):
 
         url = "http://127.0.0.1" + ":" + port + "/api/app_metadata"
         response = http.get(url, timeout=delay)
-        response.raise_for_status()
+        logging.info("http resp %s",response)
+        #response.raise_for_status()
     except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
         print(f'Error with server on {port} {e}')
-        logging.info("Error with server on %s %S", port, e)
+        logging.info("Error with server on %s %s", port, e)
         return False
 
     # It is a good practice not to hardcode the credentials. So ask the user to enter
     #  credentials at runtime
     print(f'server running ok with name={response.json()["name"]}')
-    logging.info("server running ok on port %S with name=%s", port, response.json()["name"])
+    logging.info("server running ok on port %s with name=%s", port, response.json()["name"])
     if response.status_code == 200:
         return True
     else:
         return False
 
 def check_exists(pdir) -> bool:
+    """check if path exists"""
     if not Path(pdir).is_dir:
         return False
     return True
@@ -130,7 +139,7 @@ def restart_on_port(model_name, port) -> None:
     # get cmdline to run process from pshell
     servers = {}
     pdir  = os.path.join(RBHOME, "plugin_apps","audio-transcription","audio_transcription")
-    start = "pipenv run python server.py"
+    start = f'pipenv run python {pdir}/server.py'
     servers["5020"]=[pdir, start]
     pdir  = os.path.join(RBHOME, "plugin_apps","FaceMatch")
     start = "pipenv run python server.py"
@@ -144,33 +153,35 @@ def restart_on_port(model_name, port) -> None:
 
     serv = servers[port]
     pdir = serv[0]
-    start = serv[1]
+    startp = serv[1]
     if not check_exists(pdir):
         print("Model Server not installed %s %s" , pdir)
         return
 
-    print(f'Starting Model Server {pdir}')
+    print(f'Starting Model Server {pdir} {startp}')
+    
+    logging.info("Starting Model Server %s %s", pdir, startp)
 
-    logging.info("Starting Model Server %s", pdir)
+    # start server f'cmd /c pipenv shell',
+    cmds = [f'cd {pdir} && pipenv sync && {startp}']
+    new_pid = ""
+    for c in cmds:
+        print(f'run cmd: {c}')
+        logging.info('run cmd %s', c)
+        process = subprocess.Popen(c, close_fds=False,shell=True,stderr=subprocess.STDOUT,creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
+        new_pid = process.pid
+        print(f'run cmd pid  {new_pid}')
+        logging.info('pid %s', new_pid)
 
-    # start server
-    cmds = [f'cd {pdir}', "pipenv --venv",f'cmd /c start /b {start}']
-    batfile = os.path.join(RBHOME, f'start_{port}.bat')
-    logging.info("create cmd = ${cmds}")
-    if Path(batfile).is_file():
-        os.remove(batfile)
-    with open(batfile, 'w') as file:
-        file.writelines(cmd + "\n" for cmd in cmds)
-
-    process = subprocess.Popen(batfile,creationflags=subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP, close_fds=False,shell=False)
 
     # process = subprocess.Popen(["pipenv", "run", "python", "server.py"],
     #                           creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP,close_fds=True,
     #                           stdout=None, stderr=None)
-    new_pid = process.pid
+
+    # new_pid = process.pid
     print(f'Process new pid: {new_pid}')
     logging.info("Process %s new PID %s",model_name, new_pid)
-    rc = check_server_ok(port,8,1)
+    rc = check_server_ok(port,3,3)
     logging.info("check server return %s", rc)
     # replace pid in process.txt
     # done
@@ -207,8 +218,11 @@ def main() -> None:
         find_and_stop_each_pid()
         # no other option kill all pids
         try:
-          f = os.remove(procfile)
-          logging.info("delete file fd=%s %s",f, procfile)
+            f = os.remove(procfile)
+            logging.info("remvove proc file fd=%s %s",f, procfile)
+        except Exception as e:
+            logging.info("remvove proc file %s", e)
+        try:
           delete_all_pids()
         except Exception as e:
           logging.info("delete all pids done %s", e)

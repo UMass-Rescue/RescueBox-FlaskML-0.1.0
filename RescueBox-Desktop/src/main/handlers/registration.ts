@@ -37,36 +37,19 @@ const unregisterModelAppIp = async (_event: any, arg: UnregisterModelArgs) => {
 };
 
 const getModelServers = async () => {
-  return ModelServer.getAllServers().then((servers) => servers.map(getRaw));
+  log.debug(`getModelServers ${ModelServer.getAllServers()}`);
+  for (const s of await ModelServer.getAllServers()) {
+    log.debug(`Server: ${s.modelUid}, Address: ${s.serverAddress}, Port: ${s.serverPort}`);
+  }
+  return await ModelServer.getAllServers().then(
+    (servers) => servers.map(getRaw)
+  );
 };
 
 const getModelServer = async (event: any, arg: GetModelServerArgs) => {
+  log.debug(`getModelServer ${arg.modelUid}`);
   return ModelServer.getServerByModelUid(arg.modelUid).then(getRaw);
 };
-
-async function restartServer(port: string): Promise<boolean> {
-  const script = 'rb.py';
-  const options = {
-    mode: 'text' as 'text',
-    pythonPath: process.env.PY,
-    pythonOptions: [], // get print results in real-time
-    scriptPath: process.env.RBPY,
-    args: ['--port', `${port}`],
-  };
-
-  try {
-    const py = process.env.PY ? path.join(process.env.PY) : '';
-    const sc = process.env.RBPY ? path.join(process.env.RBPY) : '';
-    log.info(`call restart server rb.py on ${port}`);
-    const messages = await PythonShell.run(script, options);
-    // results is an array consisting of messages collected during execution
-    log.info('results: %j', messages);
-    return true;
-  } catch (error) {
-    log.error('Error running Python script:', error);
-    return false;
-  }
-}
 
 const getModelAppStatus = async (
   _event: any,
@@ -82,17 +65,6 @@ const getModelAppStatus = async (
     return ModelAppStatus.Unregistered;
   }
   const modelAppService = await ModelAppService.init(arg.modelUid);
-  const pyFound = resolvePyPath();
-  if (pyFound) {
-    // await server.save();
-    // restart service with python script utility
-    const port = modelAppService.getAppServerPort();
-    const portString = await port.then((result) => result.toString());
-    log.info(`ping status check on port ${portString}`);
-    // const rc = restartServer(portString);
-    // const rcp = await rc.then((result) => result.toString());
-    // log.info(`After ping rc for port ${portString} ${rcp}`);
-  }
   let healthBool = false;
   try {
     healthBool = await modelAppService.pingHealth();
