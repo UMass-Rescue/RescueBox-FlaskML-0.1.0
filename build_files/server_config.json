@@ -1,0 +1,23 @@
+{"servers": {
+        "5020": {
+            "pname": "audio",
+            "pdir": "RBHOME, plugin_apps, audio-transcription, audio_transcription",
+            "pstart": "pipenv run python {pdir}/server.py"
+        },
+        "5010": {
+            "pname": "facematch",
+            "pdir": "RBHOME, plugin_apps ,FaceMatch",
+            "pstart": "pipenv run python server.py"
+        },
+        "5005": {
+            "pname": "dfImage",
+            "pdir": "RBHOME, plugin_apps , DeepFakeDetector, image_model",
+            "pstart": "pipenv run python model_server.py"
+        },
+        "5000": {
+            "pname": "dfImage",
+            "pdir": "RBHOME, plugin_apps , DeepFakeDetector, video_detector",
+            "pstart": "pipenv run python server.py"
+        }
+    }   
+}
