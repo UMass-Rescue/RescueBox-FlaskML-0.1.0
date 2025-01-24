@@ -34,7 +34,7 @@ export default class RBServer {
         'rb_server',
         'installer.ps1',
       );
-      // c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+      // c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe is a pre-req
       const pse = path.join(
         'c:',
         'WINDOWS',
@@ -43,7 +43,7 @@ export default class RBServer {
         'v1.0',
         'powershell.exe',
       );
-      info(`powershell script path: ${pse} ${pathf}`);
+      info(`powershell script path: ${pathf}`);
       // const maxBuffer = 1048576; // 1MB in bytes
       const arf = `-File ${pathf}`;
       const child = spawn('powershell.exe', [

@@ -22,6 +22,9 @@ SectionEnd
 !macroend
 
 Section "Uninstall"
+  Var /GLOBAL INSTDIR_LOG
+  Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
+
   Var /GLOBAL INSTDIR_DAT
   Strcpy "$INSTDIR_DAT" "$INSTDIR\resources\assets\rb_server"
 
@@ -29,22 +32,17 @@ Section "Uninstall"
   Strcpy "$PY_PATH" "$INSTDIR_DAT\python311\python.exe"
 
   ExpandEnvStrings $0 %COMSPEC%
-  Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
+  ExecWait '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
 
   FindWindow $0 "RescueBox-Desktop"
   SendMessage $0 ${WM_CLOSE} 0 0
 
-  ExpandEnvStrings $0 %COMSPEC%
-  Exec '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
-  Exec "del /f /q $INSTDIR_LOG\rb_process.txt"
+  ExecWait '"$0" /C "$PY_PATH $INSTDIR_DAT\rb.py"'
+  ExecWait '"$0" /k "del/f /q $INSTDIR_LOG\*.log"'
 
-  ExpandEnvStrings $0 %COMSPEC%
-  Var /GLOBAL INSTDIR_LOG
-  Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
-  Exec "del /f /q $INSTDIR_LOG\*.*"
+  ExecWait '"$0" /K "$INSTDIR_DAT\python-3.11.8-amd64.exe /uninstall"'
+  ExecWait '"$0" /K "rmdir /S /Q $INSTDIR"'
+
 SectionEnd
 
-!macro customRemoveFiles
-  ;Exec "rmdir /S /Q $INSTDIR"
-!macroend
 

@@ -8,6 +8,7 @@ import {
   DeployHandler,
   TaskHandler,
   ElectronAPIHandler,
+  ServerStatusHandler,
 } from '../main/preload';
 
 declare global {
@@ -22,7 +23,6 @@ declare global {
     logging: LoggingHandler;
     deploy: DeployHandler;
     electronAPI: ElectronAPIHandler;
+    serverStatus: ServerStatusHandler;
   }
 }
-
-export {};

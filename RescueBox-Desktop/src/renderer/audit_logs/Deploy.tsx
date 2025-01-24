@@ -5,6 +5,8 @@ import { Button } from '../components/ui/button';
 import { DyProgressBar } from '../components/custom_ui/customButtons';
 import GreenRunIcon from '../components/icons/GreenRunIcon';
 import LoadingScreen from '../components/LoadingScreen';
+import log from 'electron-log';
+
 
 let COMPLETE = 0;
 
@@ -23,7 +25,6 @@ function Deploy() {
   if (error) return <div>Error: {error.message}</div>;
   if (!progress) return <LoadingScreen />;
   if (progress <= 0) return <div>Deploy failed</div>;
-  if (COMPLETE === 100) return <div>Model Server Started OK</div>;
 
   const handleRefresh = async (): Promise<void> => {
     // await window.logging.clearLogs();
@@ -33,6 +34,13 @@ function Deploy() {
 
   if (currentStep === tSteps) {
     COMPLETE = 100;
+    log.info('Proceed to auto register servers on startup !');
+    try {
+      window.serverStatus.setGlobalVariable('serverReady', true);
+    }
+    catch (error) {
+      log.info(error);
+    }
     return (
       // eslint-disable-next-line react/style-prop-object
       <div
@@ -90,7 +98,7 @@ export function FileUpload() {
   return (
     <div>
       <Button onClick={handleDeploy}>Upload File</Button>
-      <DynamicProgressBar total={total} progress={progress} />
+      <DyProgressBar totalSteps={total} currentStep={progress} />
     </div>
   );
 }
