@@ -1,23 +1,33 @@
 {"servers": {
+        "SKIP_STOP_ON_CLOSE": true,
+        "URL": "http://127.0.0.1",
+        "SERVER_API": "/api/app_metadata",
+        "RETRY": 15,
+        "DELAY": 0.1,
+        "BACKOFF": 2,
         "5020": {
             "pname": "audio",
-            "pdir": "RBHOME, plugin_apps, audio-transcription, audio_transcription",
-            "pstart": "pipenv run python {pdir}/server.py"
+            "pdir": "$rbhome,plugin_apps,audio-transcription,audio_transcription",
+            "plog": "$rblog,audio.log",
+            "pstart": "pipenv run python server.py > $plog 2>&1"
         },
         "5010": {
             "pname": "facematch",
-            "pdir": "RBHOME, plugin_apps ,FaceMatch",
-            "pstart": "pipenv run python server.py"
+            "pdir": "$rbhome,plugin_apps,FaceMatch",
+            "plog": "$rblog,FaceMatch.log",
+            "pstart": "pipenv run python -m src.facematch.face_match_server > $plog 2>&1"
         },
         "5005": {
             "pname": "dfImage",
-            "pdir": "RBHOME, plugin_apps , DeepFakeDetector, image_model",
-            "pstart": "pipenv run python model_server.py"
+            "pdir": "$rbhome,plugin_apps,DeepFakeDetector,image_model,binary_deepfake_detection",
+            "plog": "$rblog,dfImage.log",
+            "pstart": "pipenv run python model_server.py > $plog 2>&1"
         },
         "5000": {
-            "pname": "dfImage",
-            "pdir": "RBHOME, plugin_apps , DeepFakeDetector, video_detector",
-            "pstart": "pipenv run python server.py"
+            "pname": "dfVideo",
+            "pdir": "$rbhome,plugin_apps,DeepFakeDetector,video_detector",
+            "plog": "$rblog,dfVideo.log",
+            "pstart": "pipenv run python server.py > $plog 2>&1"
         }
-    }   
+    }
 }

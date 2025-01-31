@@ -1,80 +1,40 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import log from 'electron-log/main';
-import fs from 'fs';
-import path from 'path';
 import RBServer from '../rbserver';
-import { showNotification } from '../util';
-import RegisterModelService from '../services/register-model-service';
 import ModelServer from '../models/model-server';
 
-const getDeploy = async (_event: any, arg: any) => {
-  try {
-    let rbLogPath = RBServer.appath;
-    // log.info('rbLog path', rbLogPath);
-    if (!rbLogPath) {
-      log.error('rbLog path not defined');
-      rbLogPath = path.join('.', 'logs');
-      return -1;
-    }
-    const rbLog = path.join(rbLogPath, 'RescueBox-Desktop', 'logs', 'main.log');
-    const pids = path.join(
-      rbLogPath,
-      'RescueBox-Desktop',
-      'logs',
-      'rb_process.txt',
-    );
-    // log.info(`rbLog file ${rbLog}`);
-    // log.info(`pids file ${pids}`);
-    if (fs.existsSync(pids)) {
-      const lineArray = fs.readFileSync(pids).toString().split('\n');
-      log.info(`progress found ${lineArray.length}`);
+let PROGRESS = 5.0;
 
-      if (lineArray.length > 5) {
-        log.info('at least 4 servers found running');
-        return 5;
-      }
-      // eslint-disable-next-line eqeqeq
-      if (lineArray.length > 1) {
-        log.info('one server running ok');
-        return 5;
-      }
-    }
-    const lineArray = fs.readFileSync(rbLog).toString();
-    // log.info(`progress size of main.log ${lineArray.length}`);
-    if (lineArray.includes('PROGRESS 5 of 5')) {
-      log.info('progress 5');
-      return 5;
-    }
-    if (lineArray.includes('PROGRESS 4 of 5')) {
-      log.info('progress 4');
-      return 4;
-    }
-    if (lineArray.includes('PROGRESS 3 of 5')) {
-      log.info('progress 3');
-      return 3;
-    }
-    if (lineArray.includes('PROGRESS 2 of 5')) {
-      log.info('progress 2');
-      return 2;
-    }
-    if (lineArray.includes('PROGRESS 1 of 5')) {
-      log.info('progress 1');
-      return 1;
-    }
-    log.info('progress not found');
-    // check if already deployed and running and log entries is not available
-    const servers = await ModelServer.getAllServers();
-    if (servers && servers?.length > 3) {
-      for (const s of servers) {
-        log.info(`found Server: ${s.modelUid}, Address: ${s.serverAddress}, Port: ${s.serverPort}`);
-      }
-      return 5;
-    }
-    return 0;
-  } catch (error) {
-    log.error(error);
-    return -1;
+const getDeploy = async (_event: any, arg: any) => {
+  let countOfServersReady: number;
+  if (!Number.isNaN(RBServer.progress)) {
+    PROGRESS = RBServer.progress * 10;
+    // log.info(`deploy progress ${PROGRESS}`);
   }
+  RBServer.registerServers('serverReady', true)
+    .then(async (result: boolean) => {
+      if (result === true) {
+        PROGRESS = RBServer.progress;
+        return PROGRESS;
+      }
+
+      countOfServersReady = 0;
+      const servers = await ModelServer.getAllServers();
+      if (servers) {
+        for (let i = 0; i < servers.length; i += 1) {
+          if (servers[i]?.isUserConnected) {
+            countOfServersReady += 1;
+          }
+        }
+      }
+      return PROGRESS;
+    })
+    .catch((error) => {
+      log.info('waiting for servers ', error);
+      return PROGRESS;
+    });
+  log.info(`servers deployed ${PROGRESS}%`);
+  return PROGRESS;
 };
 
 async function stopDeploy(_event: any, _arg: any) {

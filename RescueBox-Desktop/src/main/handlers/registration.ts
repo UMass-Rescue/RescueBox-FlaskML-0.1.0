@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ModelAppStatus } from 'src/shared/models';
 import log from 'electron-log/main';
-import { PythonShell } from 'python-shell';
-import path from 'path';
 import ModelServer from '../models/model-server';
 import { getRaw, resolvePyPath } from '../util';
 import ModelAppService from '../services/model-app-service';
@@ -37,17 +35,10 @@ const unregisterModelAppIp = async (_event: any, arg: UnregisterModelArgs) => {
 };
 
 const getModelServers = async () => {
-  log.debug(`getModelServers ${ModelServer.getAllServers()}`);
-  for (const s of await ModelServer.getAllServers()) {
-    log.debug(`Server: ${s.modelUid}, Address: ${s.serverAddress}, Port: ${s.serverPort}`);
-  }
-  return await ModelServer.getAllServers().then(
-    (servers) => servers.map(getRaw)
-  );
+  return ModelServer.getAllServers().then((servers) => servers.map(getRaw));
 };
 
 const getModelServer = async (event: any, arg: GetModelServerArgs) => {
-  log.debug(`getModelServer ${arg.modelUid}`);
   return ModelServer.getServerByModelUid(arg.modelUid).then(getRaw);
 };
 

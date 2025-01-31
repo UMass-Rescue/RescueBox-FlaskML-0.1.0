@@ -14,7 +14,6 @@ import { resolvePyPath } from '../util';
 import MLModelDb from '../models/ml-model';
 import ModelServerDb from '../models/model-server';
 import TaskDb from '../models/tasks';
-import RBServer from '../rbserver';
 
 const API_ROUTES_SLUG = '/api/routes';
 const APP_METADATA_SLUG = '/api/app_metadata';
@@ -36,7 +35,7 @@ export default class RegisterModelService {
       );
     } catch (error) {
       throw new Error(
-        `FATAL: Server error model ${serverAddress} ${serverPort}`,
+        `FATAL: register Model error ${serverAddress} ${serverPort} , server not available`,
       );
     }
     const prevModel = await MLModelDb.getModelByModelInfoAndRoutes(
@@ -44,10 +43,6 @@ export default class RegisterModelService {
       apiRoutes,
     );
     if (prevModel) {
-      log.info(`Old model found with uid ${prevModel.uid}`);
-      log.info(
-        `Updating registration info for ${prevModel.uid} at ${serverAddress}:${serverPort}`,
-      );
       await MLModelDb.restoreModel(prevModel.uid);
       await ModelServerDb.updateServer(
         prevModel.uid,
@@ -91,16 +86,6 @@ export default class RegisterModelService {
     serverAddress: string,
     serverPort: number,
   ): Promise<AppMetadata> {
-    const pyFound = resolvePyPath();
-    // restart service with python script utility
-    log.info(`getAppMetadata check status check on port ${serverPort}`);
-    const rc = RBServer.restartServer(serverPort);
-    const rcp = await rc.then((result) => result.toString());
-    log.info(`getAppMetadata check rc for port ${serverPort} ${rcp}`);
-    log.info(
-      `Fetching app metadata from http://${serverAddress}:${serverPort}${APP_METADATA_SLUG}`,
-    );
-
     return fetch(`http://${serverAddress}:${serverPort}${APP_METADATA_SLUG}`)
       .then(async (res) => {
         if (res.status === 404) {
@@ -125,9 +110,7 @@ export default class RegisterModelService {
         return data;
       })
       .catch((error) => {
-        log.error(
-          'Failed to fetch app metadata , assume Server is not Running',
-        );
+        // log.error('Failed rest api call, assume Server is not Running');
         throw error;
       });
   }
@@ -148,7 +131,6 @@ export default class RegisterModelService {
       });
     }
     const url = `http://${serverAddress}:${serverPort}${API_ROUTES_SLUG}`;
-    log.info(`Fetching API routes from ${url}`);
     const apiRoutes: APIRoutes = await fetch(url)
       .then((res) => {
         if (res.status !== 200) {

@@ -25,7 +25,6 @@ import * as deployHandler from './handlers/deploy';
 import * as taskHandler from './handlers/task';
 import DatabaseConn, { getDbPath } from './database/database-conn';
 import RBServer from './rbserver';
-import RegisterModelService from './services/register-model-service';
 
 // It preloads electron-log IPC code in renderer processes
 const mlog = log.create({ logId: 'main' });
@@ -40,7 +39,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
 
 // IPCMain Setup
 
@@ -114,6 +112,7 @@ function setupIpcMain() {
   ipcMain.handle('set-global-variable', (event, key, value) => {
     (global as any)[key] = value;
     RBServer.registerServers(key, value);
+    RBServer.restartServer();
   });
 }
 
@@ -246,9 +245,7 @@ app
       const cwd = app.getPath('appData');
       RBServer.appath = cwd;
       log.info(`Run powershell to install Model Servers from ${cwd}`);
-
       await RBServer.installRBserver(cwd);
-      // window.serverStatus.setGlobalVariable('myGlobal', 'Begin from main process!');
 
       createWindow();
       app.on('activate', () => {

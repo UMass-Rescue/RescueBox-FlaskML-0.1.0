@@ -1,22 +1,9 @@
 import { ModelAppStatus, ModelServer } from 'src/shared/models';
 import useSWR, { SWRConfiguration } from 'swr';
-import log from 'electron-log';
 
 const JOBS_REFRESH_INTERVAL = 200;
 
 export function useServerStatuses(servers?: ModelServer[]) {
-  log.debug(`debug servers useServerStatuses ${servers} `);
-  if (servers) {
-    for (let i = 0; i < servers!.length; i += 1) {
-      const s = servers?.[i];
-      log.debug(
-        `Server: ${s?.modelUid}, Address: ${s?.serverAddress},
-      Port: ${s?.serverPort}`,
-      );
-    }
-  } else {
-    log.info('debug useServerStatuses servers list is null');
-  }
   const fetcher = () =>
     Promise.all(
       servers!.map((server) =>
@@ -70,7 +57,6 @@ export function useServers() {
     `register:get-model-servers`,
     serverFetcher,
   );
-  log.debug(`useServers data ${data} `);
   return {
     servers: data,
     error,
