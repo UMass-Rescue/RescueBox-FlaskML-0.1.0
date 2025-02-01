@@ -1,0 +1,56 @@
+name: Publish
+
+on:
+   workflow_dispatch:
+
+jobs:
+  publish:
+    # To enable auto publishing to github, update your electron publisher
+    # config in package.json > "build" and remove the conditional below
+    # D:\a\RescueBox-FlaskML-0.1.0\RescueBox-FlaskML-0.1.0
+    if: ${{ github.repository_owner == 'UMass-Rescue' }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v4
+
+      - name: Install Node and NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+      - run: npm --version
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      - name: Install and build
+        run: |
+          cd D:\a\RescueBox-FlaskML-0.1.0\RescueBox-FlaskML-0.1.0\RescueBox-Desktop
+          echo %cd%
+          copy /y ..\build_files\rb.py assets\rb_server
+          copy /y ..\build_files\installer.ps1 assets\rb_server
+          copy /y ..\build_files\requirements.txt assets\rb_server
+          echo "run install"
+          cmd /c npm install
+          echo "run postinstall"
+          cmd /c npm run postinstall
+          echo "run build"
+          cmd /c npm run build
+          echo "run rebuild"
+          cmd /c npm run rebuild
+          echo "run exec"
+          cmd /c npm exec electron-builder -- --publish always --win
+          dir release\build
+          IF NOT EXIST "release\build\RescueBox-Desktop Setup 1.0.0.exe" EXIT 1
+        shell: cmd
+        
