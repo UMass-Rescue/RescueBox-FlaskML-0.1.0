@@ -49,8 +49,6 @@ if (Test-Path -Path "$RB_LOG\rb_server.log") {
   Remove-Item "$RB_LOG\rb_server.log"
 }
 if (!$PYTHON_SETUP) {
-  Write-Output "PROGRESS 1 of 5"
-
   Set-Location $RB_HOME
 
   Write-Output "Installing RB Server from $RB_HOME"
@@ -71,7 +69,6 @@ if (!$PYTHON_SETUP) {
   Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/repair /quiet PrependPath=0" -Wait
   Write-Output "Pre existing Python uninstall in case its left over from previous attempt"
   Start-Process -FilePath .\python-3.11.8-amd64.exe -ArgumentList "/uninstall /quiet" -Wait
-  Write-Output "PROGRESS 2 of 5"
   Write-Output "S=1"
   if (-Not (Get-Command 'python.exe' -ErrorAction SilentlyContinue)) {
       # Write-Output "Downloading installer..."
@@ -86,8 +83,6 @@ if (!$PYTHON_SETUP) {
   $PYTHON_SETUP=$false
 
 } # end of new install
-
-Write-Output "PROGRESS 3 of 5"
 
 $PSDefaultParameterValues = @{'Out-File:Encoding' = 'Default'}
 $env:Path="$RB_PYTHON;$env:Path;$RB_PYTHON\Scripts;$PATH"
@@ -137,7 +132,6 @@ if ($PYTHON_SETUP) {
   $a=(Get-CimInstance -Class Win32_Process -Filter "name ='pipenv.exe'" | Select-Object ProcessId | Format-Table -HideTableHeaders | Out-String).Trim()
   Write-Output "pid is audio=$a"
 	"audio=$a" | Out-File  $RB_LOG\rb_process.txt -Append
-  Write-Output "PROGRESS 4 of 5"
   # do all 4 servers
   Write-Output "S=1"
 	Set-Location $RB_HOME\plugin_apps\FaceMatch
@@ -166,9 +160,8 @@ if ($PYTHON_SETUP) {
       "facematch=$f" | Out-File  $RB_LOG\rb_process.txt -Append
     }
   }
-  Write-Output "face pid is f=$f"
-  Write-Output "both pid are $pids"
-  Write-Output "PROGRESS 4 of 5"
+  # Write-Output "facematch pid is f=$f"
+  # Write-Output "audio and facematch pid are $pids"
   #$DownloadURL = "https://umass-my.sharepoint.com/:u:/r/personal/jaikumar_umass_edu/Documents/yolov8n-face.pt?csf=1&web=1&e=IEEIKB"
   #$DownloadURL = "https://umass-my.sharepoint.com/:u:/r/personal/jaikumar_umass_edu/Documents/dffd_M_unfrozen.ckpt?csf=1&web=1&e=FULPVd"
   # this file is 1.5 gb hence download during deploy is needed

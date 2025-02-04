@@ -35,6 +35,7 @@ if platform.system() == 'Windows':
         print("RBHOME plugin_apps not found  %s", RBHOME)
 else:
     os.makedirs(RBLOG, exist_ok=True)
+os.environ['PATH']= f'{RBPYTHON};{RBPYTHON_SCRIPTS};{os.environ["PATH"]}'
 print(f'RBLOG is {RBLOG}')
 
 proc_file = os.path.join( RBLOG, 'rb_process.txt')
@@ -75,8 +76,8 @@ def stop_existing_pids(proc_name,spid):
         logger.info("found %s %s", proc.name, proc.pid)
         print(f'found {str(proc.name), str(proc.pid) }')
         if str(pid) in spid:
-            print(f'found {str(proc.info["name"])}')
-            logger.info("found %s", proc.info['name'])
+            print(f'found {str(proc.name)}')
+            logger.info("found %s", proc.name)
             results = taskkill_force_pid_children(pid)
             logger.info("kill output %s", results)
             print("RB model Server stopped ok")
@@ -197,7 +198,7 @@ def restart_on_port(servers, model_name, port) -> None:
     # replace pid in process.txt
     # done
     create_new_pids(model_name, new_pid)
-    logger.info("restart completed %s on %s", model_name, port)
+    logger.info("restart kicked off %s on %s", model_name, port)
 
 
 def find_and_stop_each_pid() -> None:
@@ -220,9 +221,9 @@ def find_and_stop_server_pids() ->None:
     # no other option kill all pids
     try:
         f = os.remove(proc_file)
-        logger.info("remvove proc file fd=%s %s",f, proc_file)
+        logger.info("remove proc file fd=%s %s",f, proc_file)
     except Exception as e:
-        logger.info("remvove proc file %s", e)
+        logger.info("remove proc file %s", e)
     try:
         delete_all_pids("pipenv.exe")
     except Exception as e:

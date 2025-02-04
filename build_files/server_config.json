@@ -7,9 +7,9 @@
         "BACKOFF": 2,
         "5020": {
             "pname": "audio",
-            "pdir": "$rbhome,plugin_apps,audio-transcription,audio_transcription",
+            "pdir": "$rbhome,plugin_apps,audio-transcription",
             "plog": "$rblog,audio.log",
-            "pstart": "pipenv run python server.py > $plog 2>&1"
+            "pstart": "cd $pdir/audio_transcription && pipenv run python server.py > $plog 2>&1"
         },
         "5010": {
             "pname": "facematch",

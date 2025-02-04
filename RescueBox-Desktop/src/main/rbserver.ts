@@ -39,15 +39,12 @@ export default class RBServer {
     for (let i = 0; i < slist.length; i += 1) {
       const port = Number(slist[i]);
       if (!Number.isNaN(port)) {
-        info(`server found in file ${port}`);
+        info(`server configured on port=${port}`);
         RBServer.serverPorts.push(port);
         // get paths for each server
         const paths = srvs.servers[slist[i]].pdir;
         RBServer.serverPortPaths.set(slist[i], paths);
       } else if (slist[i] === 'SKIP_STOP_ON_CLOSE') {
-        info(
-          `skip stopping server when UI is closed ${srvs.servers[slist[i]]}`,
-        );
         if (!srvs.servers[slist[i]]) {
           RBServer.SKIP_STOP_ON_CLOSE = false;
         }
@@ -126,7 +123,7 @@ export default class RBServer {
     info(`powershell script path: ${pathf}`);
     // const maxBuffer = 1048576; // 1MB in bytes
     const arf = `-File ${pathf}`;
-    let serverCount = 1;
+    let serverCount = 0;
     const child = spawn(
       'powershell.exe',
       [pse, '-ExecutionPolicy Bypass', arf, process.resourcesPath],
@@ -148,13 +145,11 @@ export default class RBServer {
         if (lines[i].includes('Serving Flask app')) {
           serverCount += 1;
           RBServer.progress += 0.25;
-          info(
-            `powershell start flask server running ok ${serverCount} ${RBServer.progress}`,
-          );
         }
       }
       if (RBServer.progress === 10) {
         RBServer.RUNNING = false;
+        info('call registerServers from powershell installer');
         RBServer.registerServers('serverReady', true)
           .then(async (result: boolean) => {
             return new Promise<boolean>((resolve) => {
@@ -174,7 +169,7 @@ export default class RBServer {
   }
 
   // Run PowerShell script to install RB server
-  static async installRBserver(appPath: string): Promise<void> {
+  static async installRBserver(appPath: string): Promise<boolean> {
     try {
       RBServer.progress = 1;
       RBServer.appath = appPath;
@@ -200,12 +195,11 @@ export default class RBServer {
       if (SERVERS_REGISTERED && SKIP_INSTALL) {
         RBServer.RUNNING = false;
         info('restart if servers registered and paths found');
-        await RBServer.restartServer()
+        // do not add await
+        RBServer.progress = 1;
+        RBServer.restartServer()
           .then(async (result: boolean) => {
-            if (result) {
-              RBServer.progress = 10;
-            }
-            info(`restart completed`);
+            info(`restart running in background`);
             return result;
           })
           .catch((err) => {
@@ -213,26 +207,34 @@ export default class RBServer {
             return err;
           });
       } else {
-        // install servers
+        // install py . setup venv .start servers
+        // do not add await this blocks UI
         RBServer.runPowerShellScript();
+        info('install server running in background');
       }
     } catch (err: any) {
       info(err);
       error('Failed to exec powershell', err);
     }
-    info('debug installRBserver..running in background');
+    return true;
+  }
+
+  static sleep(ms: number): Promise<void> {
+    // eslint-disable-next-line prettier/prettier
+    return new Promise((resolve) => {setTimeout(resolve, ms)});
   }
 
   static async registerServers(key: string, value: boolean): Promise<boolean> {
     if (RBServer.RUNNING) {
       return new Promise<boolean>((resolve) => {
-        info(`registerservers skip`);
+        info(`RB install in progress..please wait`);
         resolve(false);
       });
     }
     if (key.includes('serverReady') && value) {
       const serverAddress = '127.0.0.1';
-      for (let i = 0; i < this.serverPorts.length; i += 1) {
+      let count = 0;
+      for (let i = 0; i < RBServer.serverPorts.length; i += 1) {
         // info(`registration call for port ${this.serverPorts[i]}`);
         try {
           const mdb = RegisterModelService.registerModel(
@@ -241,17 +243,21 @@ export default class RBServer {
           ).then(getRaw);
           // eslint-disable-next-line no-unused-expressions, no-await-in-loop
           const status = (await mdb)?.isUserConnected;
-          // Models();
           // eslint-disable-next-line no-await-in-loop
           const mid = (await mdb)?.modelUid;
           if (mid && status) {
-            // force available models UI screen to refresh status
-            // eslint-disable-next-line no-await-in-loop
-            info(`registerServers ${this.serverPorts[i]} ${mid}`);
+            count += 1;
+            info(`registerServers ${count} ${this.serverPorts[i]} ${mid}`);
           }
         } catch (err) {
-          info(`registerServers skip`);
+          info(`registerServers ${count} ${this.serverPorts[i]} ${err}`);
         }
+      }
+      if (count !== RBServer.serverPorts.length) {
+        info(`registerServers retry`);
+        RBServer.RUNNING = false;
+        await RBServer.sleep(5000); // Wait for 5 seconds
+        RBServer.registerServers('serverReady', true);
       }
     }
     return new Promise<boolean>((resolve) => {
@@ -303,52 +309,47 @@ export default class RBServer {
     }
   }
 
-  static async restartServer(): Promise<boolean> {
-    if (RBServer.RUNNING) {
-      info(`restartServer in progress  ${RBServer.progress}`);
-      return true;
+static async restartServer(): Promise<boolean> {
+  if (RBServer.RUNNING || RBServer.progress === 10) {
+    info(`restartServer skip  ${RBServer.progress}`);
+    return false;
+  }
+  RBServer.progress = 1;
+  const script = 'rb.py';
+  resolvePyPath();
+  let COUNT = 0;
+  for (let i = 0; i < RBServer.serverPorts.length; i += 1) {
+    RBServer.RUNNING = true;
+    const fport = RBServer.serverPorts[i];
+    info(`call restart server rb.py on ${fport}`);
+    const rbPyScript = process.env.RBPY ? path.join(process.env.RBPY, 'rb.py') : '';
+    if (process.env.PY && rbPyScript) {
+      const child = spawn(
+        process.env.PY,
+        [rbPyScript, '--port', `${fport}`],
+        { stdio: ['ignore', 'pipe', 'pipe'], detached: true }, // Make the process run in the background
+        );
+      child.stderr.on('data', (data) => {
+        const x = data.toString();
+        const lines = x.replace(/\r\n/g, '\r').replace(/\n/g, '\r').split(/\r/);
+        for (let i = 0; i < lines.length; i += 1) {
+          if (lines[i].includes('new PID')) {
+            COUNT += 1;
+            info(`restart: ${COUNT} ${lines[i]}`);
+            //progress += total - current / ports.length
+            RBServer.progress = 2.5 * COUNT;
+
+          }
+        }
+      });
     }
-    const script = 'rb.py';
-    resolvePyPath();
-    let COUNT = 1;
-    for (let i = 0; i < RBServer.serverPorts.length; i += 1) {
-      RBServer.RUNNING = true;
-      const fport = RBServer.serverPorts[i];
-      const options = {
-        mode: 'text' as 'text',
-        pythonPath: process.env.PY,
-        pythonOptions: [], // get print results in real-time
-        scriptPath: process.env.RBPY,
-        args: ['--port', `${fport}`],
-      };
-      // info(`call restart server rb.py on ${fport}`);
-      // eslint-disable-next-line no-await-in-loop
-      PythonShell.run(script, options)
-        // eslint-disable-next-line no-loop-func
-        .then((messages) => {
-          // messages is an array of strings, one for each line of output from your script
-          info('restart output: %j', messages);
-          // progress += total - current / ports.length
-          RBServer.progress += 2.5;
-          COUNT += 1;
-          return new Promise<boolean>((resolve) => {
-            resolve(true);
-          });
-        })
-        // eslint-disable-next-line @typescript-eslint/no-shadow, no-loop-func
-        .catch((error) => {
-          info('restart Error:', error);
-          COUNT -= 1;
-          return false;
-        });
-      // results is an array consisting of messages collected during execution
+  }
+  return new Promise<boolean>((resolve) => {
+    if (COUNT === RBServer.serverPorts.length) {
+      RBServer.RUNNING = false;
+      RBServer.progress = 10;
     }
-    return new Promise<boolean>((resolve) => {
-      if (COUNT === RBServer.serverPorts.length) {
-        RBServer.RUNNING = false;
-        RBServer.progress = 10;
-      }
-      resolve(true);
-    });
+    resolve(true);
+  });
   }
 }
