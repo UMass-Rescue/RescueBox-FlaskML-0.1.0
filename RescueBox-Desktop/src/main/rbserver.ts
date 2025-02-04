@@ -196,7 +196,6 @@ export default class RBServer {
         RBServer.RUNNING = false;
         info('restart if servers registered and paths found');
         // do not add await
-        RBServer.progress = 1;
         RBServer.restartServer()
           .then(async (result: boolean) => {
             info(`restart running in background`);
@@ -210,11 +209,12 @@ export default class RBServer {
         // install py . setup venv .start servers
         // do not add await this blocks UI
         RBServer.runPowerShellScript();
-        info('install server running in background');
+        info('install server script running in background');
       }
     } catch (err: any) {
       info(err);
       error('Failed to exec powershell', err);
+      return false;
     }
     return true;
   }
@@ -310,39 +310,37 @@ export default class RBServer {
   }
 
 static async restartServer(): Promise<boolean> {
-  if (RBServer.RUNNING || RBServer.progress === 10) {
-    info(`restartServer skip  ${RBServer.progress}`);
+  if (RBServer.RUNNING || RBServer.progress === 10 ) {
+    info(`restartServer SKIP  ${RBServer.progress}`);
     return false;
   }
-  RBServer.progress = 1;
   const script = 'rb.py';
   resolvePyPath();
   let COUNT = 0;
   for (let i = 0; i < RBServer.serverPorts.length; i += 1) {
-    RBServer.RUNNING = true;
-    const fport = RBServer.serverPorts[i];
-    info(`call restart server rb.py on ${fport}`);
-    const rbPyScript = process.env.RBPY ? path.join(process.env.RBPY, 'rb.py') : '';
-    if (process.env.PY && rbPyScript) {
-      const child = spawn(
-        process.env.PY,
-        [rbPyScript, '--port', `${fport}`],
-        { stdio: ['ignore', 'pipe', 'pipe'], detached: true }, // Make the process run in the background
-        );
-      child.stderr.on('data', (data) => {
-        const x = data.toString();
-        const lines = x.replace(/\r\n/g, '\r').replace(/\n/g, '\r').split(/\r/);
-        for (let i = 0; i < lines.length; i += 1) {
-          if (lines[i].includes('new PID')) {
-            COUNT += 1;
-            info(`restart: ${COUNT} ${lines[i]}`);
-            //progress += total - current / ports.length
-            RBServer.progress = 2.5 * COUNT;
-
+      RBServer.RUNNING = true;
+      const fport = RBServer.serverPorts[i];
+      info(`call restart server rb.py on ${fport}`);
+      const rbPyScript = process.env.RBPY ? path.join(process.env.RBPY, 'rb.py') : '';
+      if (process.env.PY && rbPyScript) {
+        COUNT += 1;
+        const child = spawn(
+          process.env.PY,
+          [rbPyScript, '--port', `${fport}`],
+          { stdio: ['ignore', 'pipe', 'pipe'], detached: true }, // Make the process run in the background
+          );
+        child.stderr.on('data', (data) => {
+          const x = data.toString();
+          const lines = x.replace(/\r\n/g, '\r').replace(/\n/g, '\r').split(/\r/);
+          for (let i = 0; i < lines.length; i += 1) {
+            if (lines[i].includes('new PID')) {
+                info(`restart: ${lines[i]}`);
+                // progress += total - current / ports.length
+                RBServer.progress = 2.5 * COUNT;
+            }
           }
-        }
-      });
-    }
+          });
+      }
   }
   return new Promise<boolean>((resolve) => {
     if (COUNT === RBServer.serverPorts.length) {

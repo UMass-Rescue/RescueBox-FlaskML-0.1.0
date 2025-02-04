@@ -26,11 +26,13 @@ RBHOME = cwd
 RBHOME = os.path.join(cwd,"resources", "assets", "rb_server")
 RBLOG = os.path.join(cwd, "logs")
 RBPYTHON= os.path.join(cwd,"resources", "assets", "rb_server","python311")
+RBPYTHON_SCRIPTS= os.path.join(cwd,"resources", "assets", "rb_server","python311","scripts")
 if platform.system() == 'Windows':
     RBLOG = os.path.join(os.environ['APPDATA'], 'RescueBox-Desktop', 'logs')
     if not os.path.exists(RBHOME):
         RBHOME = os.path.join(cwd)
         RBPYTHON= os.path.join(cwd,"python311")
+        RBPYTHON_SCRIPTS= os.path.join(cwd,"python311", "scripts")
     if not os.path.exists(os.path.join(RBHOME, "plugin_apps")):
         print("RBHOME plugin_apps not found  %s", RBHOME)
 else:
