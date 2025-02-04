@@ -6,29 +6,25 @@ import { Model } from 'sequelize';
 import { InferAttributes } from 'sequelize/types/model';
 import { app, Notification, BrowserWindow } from 'electron';
 
-export function resolveHtmlPath(htmlFileName: string) {
-  const U = '.';
-  const py = path.join(
-    U,
-    'resources',
-    'assets',
-    'rb_server',
-    'python311',
-    'python.exe',
-  );
+export function resolvePyPath(): boolean | null {
+  const home = process.resourcesPath;
+  const py = path.join(home, 'assets', 'rb_server', 'python311', 'python.exe');
   if (fs.existsSync(py)) {
     process.env.PY = py;
     // dir for script
-    const sc = path.join(U, 'resources', 'assets', 'rb_server');
+    const sc = path.join(home, 'assets', 'rb_server');
     if (fs.existsSync(sc)) {
       process.env.RBPY = sc;
     } else {
       process.env.RBPY = './resources/assets/rb_server'; // ?? on dev setup for example , try relative path ?
     }
   } else {
-    process.env.PY = 'python'; // assume in the path
+    return false;
   }
+  return true;
+}
 
+export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {
     const port = process.env.PORT || 1212;
     const url = new URL(`http://localhost:${port}`);

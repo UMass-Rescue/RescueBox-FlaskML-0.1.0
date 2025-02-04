@@ -1,3 +1,6 @@
 flask-ml
 psutil
 cmake
+requests
+urllib3
+taskkill

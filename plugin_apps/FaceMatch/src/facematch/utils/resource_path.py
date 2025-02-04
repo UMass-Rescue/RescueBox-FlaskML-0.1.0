@@ -1,19 +1,11 @@
 import os, sys
 from src.facematch.utils.logger import log_info
-import os, sys
-from src.facematch.utils.logger import log_info
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(
     os.path.join(module_dir, os.pardir, os.pardir, os.pardir)
 )
 DATA_DIR = os.path.join(project_root, "resources")
-if getattr(sys, 'frozen', False):
-    log_info("debug in get resource_path")
-    #script_dir = sys._MEIPASS
-    #DATA_DIR = os.path.join(script_dir, "resources")
-    log_info(DATA_DIR)
-
 if getattr(sys, 'frozen', False):
     log_info("debug in get resource_path")
     #script_dir = sys._MEIPASS

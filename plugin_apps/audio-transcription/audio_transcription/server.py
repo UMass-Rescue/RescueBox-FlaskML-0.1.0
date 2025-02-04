@@ -6,6 +6,19 @@ from flask_ml.flask_ml_server.models import ResponseBody
 from flask_ml.flask_ml_server.templates import FileML
 # remove relative import for pyinstaller
 from ml.model import AudioTranscriptionModel
+import logging
+formatter = logging.Formatter(
+    "{asctime} - {levelname} - {message}",
+     style="{",
+     datefmt="%Y-%m-%d %H:%M", )
+logger = logging.getLogger(__name__)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+file_handler = logging.FileHandler("audio.log", mode="a", encoding="utf-8")
+file_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+
 
 # for pyinstaller
 if getattr(sys, 'frozen', False):
@@ -45,8 +58,8 @@ file_ml = FileML(example_parameters)
 def transcribe(
     inputs: file_ml.InputType, parameters: file_ml.ParameterType # type: ignore
 ) -> ResponseBody:
-    print("Inputs:", inputs)
-    print("Parameters:", parameters)
+    logger.info("Inputs:", inputs)
+    logger.info("Parameters:", parameters)
     files = [e.path for e in inputs["file_inputs"].files]
     results = model.transcribe_batch(files)
     results = {r["file_path"]: r["result"] for r in results}

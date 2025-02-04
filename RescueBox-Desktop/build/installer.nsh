@@ -3,6 +3,9 @@
 
 Var VersionNumber
 
+!macro customInit
+  Delete "$INSTDIR\Uninstall*.exe"
+!macroend
 
 Section
   SetDetailsPrint both
@@ -13,15 +16,10 @@ Section
   MessageBox MB_OK|MB_ICONINFORMATION "Copyright (R) ${COPYYEAR}"
 SectionEnd
 
-!macro customHeader
-    RequestExecutionLevel admin
-!macroend
-
-!macro customInstall
-     Strcpy "$INSTDIR_DAT" "$INSTDIR\resources\assets\rb_server"
-!macroend
-
 Section "Uninstall"
+  Var /GLOBAL INSTDIR_LOG
+  Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
+
   Var /GLOBAL INSTDIR_LOG
   Strcpy "$INSTDIR_LOG" "$AppData\RescueBox-Desktop\logs"
 

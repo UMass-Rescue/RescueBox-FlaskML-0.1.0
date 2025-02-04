@@ -9,8 +9,26 @@ import {
 import { Link } from 'react-router-dom';
 import { Job, MLModel } from 'src/shared/models';
 import LinearProgressWithLabelValue from '../ui/progressWithValue';
+import CircularProgressWithLabel from '../ui/progressCircle';
 import CancelIcon from '../icons/CancelIcon';
 import DeleteIcon from '../icons/DeleteIcon';
+
+export function DyProgressCircle({
+  totalSteps,
+  currentStep,
+}: {
+  totalSteps: number;
+  currentStep: number;
+}) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const calculatedProgress = (currentStep / totalSteps) * 10;
+    setProgress(calculatedProgress);
+  }, [currentStep, totalSteps]);
+
+  return <CircularProgressWithLabel value={progress} />;
+}
 
 export function DyProgressBar({
   totalSteps,

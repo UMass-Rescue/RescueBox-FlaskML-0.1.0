@@ -18,7 +18,7 @@ import LoadingIcon from '../components/icons/LoadingIcon';
 import ExportIcon from '../components/icons/ExportIcon';
 import LoadingScreen from '../components/LoadingScreen';
 
-const MAX_LOGS = 1000;
+const MAX_LOGS = 100;
 
 export default function AuditLogs() {
   const { data: logs, error, isLoading, isValidating, mutate } = useLogs();

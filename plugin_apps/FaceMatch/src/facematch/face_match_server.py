@@ -61,22 +61,9 @@ if getattr(sys, 'frozen', False):
 
 log_info(script_dir)
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# for pyinstaller
-if getattr(sys, 'frozen', False):
-    #script_dir = sys._MEIPASS
-    os.environ["PATH"] += os.pathsep + script_dir
-    os.chdir(script_dir)
-    log_info("Running in  script_dir")
-
-log_info(script_dir)
-
 server = MLServer(__name__)
 
 # Add static location for app-info.md file
-# run pyinstaller in same folder as app-info.md location
-info_file_path = os.path.join(".", "app-info.md")
 # run pyinstaller in same folder as app-info.md location
 info_file_path = os.path.join(".", "app-info.md")
 
@@ -270,8 +257,6 @@ def bulk_upload_endpoint(
     ]
     log_info(parameters["dropdown_database_name"])
     log_info(parameters["database_name"])
-    log_info(parameters["dropdown_database_name"])
-    log_info(parameters["database_name"])
     log_info(input_directory_paths[0])
     # Call the model function
     response = face_match_model.bulk_upload(
@@ -290,7 +275,5 @@ def bulk_upload_endpoint(
     return ResponseBody(root=TextResponse(value=response))
 
 
-if __name__ == "__main__":
-    server.run(port=5010)
 if __name__ == "__main__":
     server.run(port=5010)

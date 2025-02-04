@@ -21,26 +21,24 @@ export default class RegisterModelService {
     let modelInfo;
     let apiRoutes;
     try {
-       modelInfo = await RegisterModelService.getAppMetadata(
+      modelInfo = await RegisterModelService.getAppMetadata(
         serverAddress,
         serverPort,
       );
-       apiRoutes = await RegisterModelService.getAPIRoutes(
+      apiRoutes = await RegisterModelService.getAPIRoutes(
         serverAddress,
         serverPort,
       );
-    } catch(error) {
-        throw new Error(`FATAL: Server error model ${serverAddress} ${serverPort}`);
+    } catch (error) {
+      throw new Error(
+        `FATAL: register Model error ${serverAddress} ${serverPort} , server not available`,
+      );
     }
     const prevModel = await MLModelDb.getModelByModelInfoAndRoutes(
       modelInfo,
       apiRoutes,
     );
     if (prevModel) {
-      log.info(`Old model found with uid ${prevModel.uid}`);
-      log.info(
-        `Updating registration info for ${prevModel.uid} at ${serverAddress}:${serverPort}`,
-      );
       await MLModelDb.restoreModel(prevModel.uid);
       await ModelServerDb.updateServer(
         prevModel.uid,
@@ -84,10 +82,6 @@ export default class RegisterModelService {
     serverAddress: string,
     serverPort: number,
   ): Promise<AppMetadata> {
-    log.info(
-      `Fetching app metadata from http://${serverAddress}:${serverPort}${APP_METADATA_SLUG}`,
-    );
-
     return fetch(`http://${serverAddress}:${serverPort}${APP_METADATA_SLUG}`)
       .then(async (res) => {
         if (res.status === 404) {
@@ -100,7 +94,7 @@ export default class RegisterModelService {
         }
         if (res.status !== 200) {
           throw new Error(
-            `Failed to fetch app metadata from backend server at port ${serverPort}.`,
+            `Failed to fetch app metadata from backend server at port ${serverPort} ${res.statusText}.`,
           );
         }
         return res.json();
@@ -112,7 +106,7 @@ export default class RegisterModelService {
         return data;
       })
       .catch((error) => {
-        log.error('Failed to fetch app metadata', error);
+        // log.error('Failed rest api call, assume Server is not Running');
         throw error;
       });
   }
@@ -133,7 +127,6 @@ export default class RegisterModelService {
       });
     }
     const url = `http://${serverAddress}:${serverPort}${API_ROUTES_SLUG}`;
-    log.info(`Fetching API routes from ${url}`);
     const apiRoutes: APIRoutes = await fetch(url)
       .then((res) => {
         if (res.status !== 200) {
