@@ -9,6 +9,7 @@ import serverData from './dummy_data/servers';
 import TaskDb, { initTask } from '../models/tasks';
 import { dummyModels } from './dummy_data/mlmodels';
 import dummyTaskData from './dummy_data/tasks';
+import InstallDb, { initInstaller } from '../models/install';
 
 class SQLiteDB {
   private connection: Sequelize;
@@ -48,6 +49,7 @@ class SQLiteDB {
     await initJob(this.connection);
     await initTask(this.connection);
     await initModelServer(this.connection);
+    await initInstaller(this.connection);
     info('Models initialized');
   }
 
@@ -82,6 +84,7 @@ class SQLiteDB {
     await TaskDb.destroy({ where: {} });
     await MLModelDb.destroy({ where: {} });
     await this.initModels();
+    await InstallDb.destroy({ where: {} });
   }
 
   async disconnect(): Promise<void> {

@@ -2,6 +2,11 @@
 import log from 'electron-log/main';
 import RBServer from '../rbserver';
 import ModelServer from '../models/model-server';
+import InstallDb, {
+  InstallArgs,
+  RemoveInstalledByidArgs,
+} from '../models/install';
+import { getRaw } from '../util';
 
 let PROGRESS = 5.0;
 
@@ -31,3 +36,40 @@ async function stopDeploy(_event: any, _arg: any) {
 }
 
 export { getDeploy, stopDeploy };
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getInstalled(_event: any, _arg: any) {
+  return InstallDb.findAll().then((installDb) => installDb.map(getRaw));
+}
+
+export async function addInstalled(_event: any, arg: InstallArgs) {
+  return InstallDb.addInstall(
+    arg.name,
+    arg.port,
+    arg.isOk,
+    arg.isRunning,
+    arg.comments,
+  );
+}
+
+export async function updateInstalled(_event: any, arg: InstallArgs) {
+  return InstallDb.updateInstall(
+    arg.name,
+    arg.port,
+    arg.isOk,
+    arg.isRunning,
+    arg.isDeleted,
+    arg.comments,
+  );
+}
+
+export async function getInstalledByName(event: any, arg: InstallArgs) {
+  return InstallDb.getInstallByName(arg.name).then(getRaw);
+}
+
+export async function removeInstalledByName(
+  event: any,
+  arg: RemoveInstalledByidArgs,
+) {
+  return InstallDb.unregisterInstall(arg.name);
+}
