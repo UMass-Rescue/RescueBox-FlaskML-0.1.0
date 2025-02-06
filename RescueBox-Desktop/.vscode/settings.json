@@ -32,5 +32,14 @@
     "source.fixAll.eslint": "explicit",
     "source.fixAll.tslint": "explicit",
     "source.fixAll.stylelint": "explicit"
-  }
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintArgs": [
+      "--rcfile",
+      "${workspaceFolder}/.vscode/.pylintrc"
+  ]
 }

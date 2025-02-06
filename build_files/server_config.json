@@ -1,0 +1,33 @@
+{"servers": {
+        "SKIP_STOP_ON_CLOSE": true,
+        "URL": "http://127.0.0.1",
+        "SERVER_API": "/api/app_metadata",
+        "RETRY": 15,
+        "DELAY": 0.1,
+        "BACKOFF": 2,
+        "5020": {
+            "pname": "audio",
+            "pdir": "$rbhome,plugin_apps,audio-transcription",
+            "plog": "$rblog,audio.log",
+            "pstart": "cd $pdir/audio_transcription && pipenv run python server.py > $plog 2>&1"
+        },
+        "5010": {
+            "pname": "facematch",
+            "pdir": "$rbhome,plugin_apps,FaceMatch",
+            "plog": "$rblog,FaceMatch.log",
+            "pstart": "pipenv run python -m src.facematch.face_match_server > $plog 2>&1"
+        },
+        "5005": {
+            "pname": "dfImage",
+            "pdir": "$rbhome,plugin_apps,DeepFakeDetector,image_model,binary_deepfake_detection",
+            "plog": "$rblog,dfImage.log",
+            "pstart": "pipenv run python model_server.py > $plog 2>&1"
+        },
+        "5000": {
+            "pname": "dfVideo",
+            "pdir": "$rbhome,plugin_apps,DeepFakeDetector,video_detector",
+            "plog": "$rblog,dfVideo.log",
+            "pstart": "pipenv run python server.py > $plog 2>&1"
+        }
+    }
+}

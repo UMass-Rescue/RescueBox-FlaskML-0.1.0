@@ -178,7 +178,7 @@ export async function saveLogs(_event: any, _arg: any) {
   return dialog
     .showSaveDialog({
       title: 'Select the File Path to save',
-      defaultPath: `rescuebox-logs-${new Date().toISOString()}.log`,
+      defaultPath: `rb_main_saved_${new Date().toISOString().replaceAll(':', '_')}.log`,
       buttonLabel: 'Save',
       // Restricting the user to only Text Files.
       filters: [

@@ -12,8 +12,9 @@ plugin_apps/DeepFakeDetector/image_model/binary_deepfake_detection/pretrained/*
 *.pdf
 *.zip
 saved/**
-n.bat
+*.bat
 build_files/Scripts/*
 build_files/node_modules/*
 build_files/package.json
 build_files/package-lock.json
+node_modules/

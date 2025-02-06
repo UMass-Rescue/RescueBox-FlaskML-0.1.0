@@ -23,7 +23,6 @@ export function useServerStatuses(servers?: ModelServer[]) {
     !servers ? null : `register:get-model-app-status`,
     fetcher,
   );
-
   return {
     serverStatuses: data,
     error,
@@ -43,7 +42,6 @@ export function useServerStatus(modelUid?: string) {
     !modelUid ? null : `register:get-model-app-status-${modelUid}`,
     fetcher,
   );
-
   return {
     serverStatus: data,
     error,
@@ -59,7 +57,6 @@ export function useServers() {
     `register:get-model-servers`,
     serverFetcher,
   );
-
   return {
     servers: data,
     error,
